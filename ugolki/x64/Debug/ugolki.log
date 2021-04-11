@@ -1,0 +1,22 @@
+﻿  Board.cpp
+C:\Users\Kacper\source\repos\ugolki\ugolki\Board.cpp(46,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\Kacper\source\repos\ugolki\ugolki\Board.cpp(46,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\Kacper\source\repos\ugolki\ugolki\Board.cpp(52,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+C:\Users\Kacper\source\repos\ugolki\ugolki\Board.cpp(52,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  ugolki.vcxproj -> C:\Users\Kacper\source\repos\ugolki\x64\Debug\ugolki.exe

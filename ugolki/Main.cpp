@@ -60,12 +60,27 @@ int main()
                         {
                             if (board.move(selected_tile[0], selected_tile[1]))
                             {
-                                selected_tile[0] = selected_tile[1];
+                                if (board.canMoveMultiple())
+                                {
+                                    selected_tile[0] = selected_tile[1];
+                                    //board.selectTile(selected_tile[0]);
+                                    selected_tile[1] = -1;
+                                }
+                                else
+                                {
+                                    selected_tile[0] = -1;
+                                    //board.selectTile(selected_tile[0]);
+                                    selected_tile[1] = -1;
+                                }
+                            }
+                            else if (board.canMoveMultiple())
+                            {
                                 selected_tile[1] = -1;
                             }
                             else
                             {
                                 selected_tile[0] = -1;
+                                //board.selectTile(selected_tile[0]);
                                 selected_tile[1] = -1;
                             }
                         }
@@ -78,8 +93,10 @@ int main()
                     {
                         if (board.getTile(selected_tile[0]) == 0)
                             selected_tile[0] = -1;
+                        else board.selectTile(selected_tile[0]);
                     }
                 }
+                
             }
         }
         else

@@ -15,14 +15,19 @@ private:
 	std::vector<std::vector<int>> tiles;
 	sf::Texture textures;
 	sf::Sprite tile; //0 black tile, 1 white tile
-	sf::Sprite paw; //2 paw, 3 paw
+	sf::Sprite paw; //2 paw1, 3 paw2
 	int last_move = -1;
+	int selected_tile;	//wybrane pole/pionek
+	int last_visited_tile = -1; //poprzednia pozycja
+	bool move_multiple = false; //czy mo¿e wykonaæ kolejny rych w tej samej turze
 public:
 	Board();
 	void reset();
 	void draw(sf::RenderWindow& w);
 	int getTile(int);
+	void selectTile(int);
 	bool checkNextHoop(int, int);
 	bool move(int, int);
+	bool canMoveMultiple();
 };
 

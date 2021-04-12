@@ -7,6 +7,7 @@ Board::Board()
 	tile.setOrigin(40, 40);
 	paw.setTexture(textures);
 	paw.setOrigin(40, 40);
+	selected_tile = -1;
 }
 
 void Board::reset()
@@ -29,11 +30,10 @@ void Board::reset()
 			{
 				temp.push_back(0);
 			}
-			std::cout << temp[j] << " ";
 		}
 		this->tiles.push_back(temp);
-		std::cout << '\n';
 	}
+	selected_tile = -1;
 }
 
 void Board::draw(sf::RenderWindow &w)
@@ -42,9 +42,17 @@ void Board::draw(sf::RenderWindow &w)
 	{
 		for (int j = 0; j < this->width; j++)
 		{
-			tile.setTextureRect(sf::IntRect(((i + j) % 2) * 80, 0, 80, 80));
 			tile.setPosition(sf::Vector2f(BOARD_START_X + (j * 80), BOARD_START_Y + (i * 80)));
 
+			
+			if (selected_tile == (i*8)+j)
+			{
+				tile.setTextureRect(sf::IntRect(4 * 80, 0, 80, 80));
+			}
+			else
+			{
+				tile.setTextureRect(sf::IntRect(((i + j) % 2) * 80, 0, 80, 80));
+			}
 			w.draw(tile);
 			if (tiles[i][j] != 0)
 			{
@@ -59,8 +67,12 @@ void Board::draw(sf::RenderWindow &w)
 
 int Board::getTile(int x)
 {
-	std::cout << tiles[x / 8][x % 8] << '\n';
 	return tiles[x / 8][x % 8];
+}
+
+void Board::selectTile(int x)
+{
+	selected_tile = x;
 }
 
 bool Board::checkNextHoop(int x, int y) //x pionek do przeskoczenia, y miejsce za pionkiem
@@ -74,13 +86,12 @@ bool Board::checkNextHoop(int x, int y) //x pionek do przeskoczenia, y miejsce z
 bool Board::move(int x, int y)
 {
 	bool can_move = false;
-	bool can_move_multiple = false;
 	int distance = x - y;
 	if (distance == 0)
 	{
 		can_move = false;
 	}
-	else if (abs(distance) == 1 || abs(distance) == 8) //bez przeskakiwania
+	else if ((abs(distance) == 1 || abs(distance) == 8) && !move_multiple) //bez przeskakiwania
 	{
 		can_move = true;
 	}
@@ -121,15 +132,26 @@ bool Board::move(int x, int y)
 			for (int i = 1; i < 8; i+=2)
 			{
 				if (x == y + temp[i - 1]) continue;
-				can_move_multiple = (can_move_multiple || checkNextHoop(y + temp[i - 1], y + temp[i]));
+				move_multiple = (move_multiple || checkNextHoop(y + temp[i - 1], y + temp[i]));
 			}
 		}
 	}
-	if (can_move)
+	if (can_move && y != last_visited_tile)
 	{
 		tiles[y / 8][y % 8] = tiles[x / 8][x % 8];
 		tiles[x / 8][x % 8] = 0;
-		last_move = x;
+		last_visited_tile = x;
+		if (move_multiple) selected_tile = y;
+		else selected_tile = -1;
 	}
-	return can_move_multiple;
+	else
+	{
+		can_move = false;
+	}
+	return can_move;
+}
+
+bool Board::canMoveMultiple()
+{
+	return move_multiple;
 }

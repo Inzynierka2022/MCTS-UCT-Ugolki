@@ -30,3 +30,17 @@
 *.exe
 *.out
 *.app
+.vs/ugolki/v16/.suo
+.vs/ugolki/v16/Browse.VC.db
+.vs/ugolki/v16/Browse.VC.db-shm
+ugolki/x64/Debug/ugolki.tlog/CL.read.1.tlog
+ugolki/x64/Debug/ugolki.tlog/CL.write.1.tlog
+ugolki/x64/Debug/vc142.idb
+ugolki/x64/Debug/vc142.pdb
+x64/Debug/ugolki.ilk
+x64/Debug/ugolki.pdb
+.vs/ugolki/v16/ipch/AutoPCH/6504b20c3b34dd4/BOARD.ipch
+.vs/ugolki/v16/Browse.VC.opendb
+.vs/ugolki/v16/Browse.VC.db-wal
+.vs/ugolki/v16/Browse.VC.db
+.vs/ugolki/v16/.suo

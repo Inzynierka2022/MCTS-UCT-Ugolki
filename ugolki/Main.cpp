@@ -14,7 +14,7 @@ int select_tile(sf::Vector2i v)
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 800), "program");
+    sf::RenderWindow window(sf::VideoMode(800, 800), "program",sf::Style::Titlebar);
 
     Board board;
     board.reset();

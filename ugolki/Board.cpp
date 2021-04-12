@@ -95,6 +95,10 @@ bool Board::move(int x, int y)
 	{
 		can_move = false;
 	}
+	else if (x / 8 != y / 8 && x % 8 != y % 8)
+	{
+		can_move = false;
+	}
 	else if ((abs(distance) == 1 || abs(distance) == 8) && !move_multiple) //bez przeskakiwania
 	{
 		can_move = true;
@@ -160,13 +164,11 @@ bool Board::move(int x, int y)
 	else if (move_multiple) //nieudany ruch
 	{
 		can_move = false;
-		std::cout << "C" << '\n';
 	}
 	else // nieudany pojedynczy ruch bez przeskokow
 	{
 		can_move = false;
 		selected_tile = -1;
-		std::cout << "A" << '\n';
 	}
 	return can_move;
 }

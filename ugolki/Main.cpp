@@ -14,7 +14,6 @@ int select_tile(sf::Vector2i v)
 
 int main()
 {
-    std::cout << "Hello World!\n";
     sf::RenderWindow window(sf::VideoMode(800, 800), "program");
 
     Board board;
@@ -24,6 +23,7 @@ int main()
 
     std::vector<int>move_queue;
     bool mouse_pressed = false;
+    bool keyboard_pressed = false;
 
     while (window.isOpen())
     {
@@ -40,9 +40,17 @@ int main()
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
         {
-            board.reset();
-            selected_tile[0] = -1;
-            selected_tile[1] = -1;
+            if (!keyboard_pressed)
+            {
+                keyboard_pressed = true;
+                board.reset();
+                selected_tile[0] = -1;
+                selected_tile[1] = -1;
+            }
+        }
+        else
+        {
+            keyboard_pressed = false;
         }
         if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
         {
@@ -97,6 +105,16 @@ int main()
                     }
                 }
                 
+            }
+        }
+        else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+        {
+            if (!mouse_pressed)
+            {
+                mouse_pressed = true;
+                board.endTurn();
+                selected_tile[0] = -1;
+                selected_tile[1] = -1;
             }
         }
         else

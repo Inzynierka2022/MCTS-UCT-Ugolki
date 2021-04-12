@@ -79,7 +79,11 @@ bool Board::checkNextHoop(int x, int y) //x pionek do przeskoczenia, y miejsce z
 {
 	if (x < 0 || x>63) return false;
 	if (y < 0 || y>63) return false;
-	if (getTile(x) != 0 && getTile(y) == 0) return true;
+	if (getTile(x) != 0 && getTile(y) == 0)
+	{
+		if (((x / 8) == (y / 8)) || ((x % 8) == (y % 8)))return true;
+		else return false;
+	}
 	else return false;
 }
 
@@ -97,28 +101,29 @@ bool Board::move(int x, int y)
 	}
 	else //sprawdz czy przeskakuje
 	{
+		
 		switch (distance)
 		{
 		case -2:
-			if (this->getTile(x + 1) != 0)
+			if (this->getTile(x + 1) != 0 && last_visited_tile != y)
 			{
 				can_move = true;
 			}
 			break;
 		case 2:
-			if (this->getTile(x - 1) != 0)
+			if (this->getTile(x - 1) != 0 && last_visited_tile != y)
 			{
 				can_move = true;
 			}
 			break;
 		case -16:
-			if (this->getTile(x + 8) != 0)
+			if (this->getTile(x + 8) != 0 && last_visited_tile != y)
 			{
 				can_move = true;
 			}
 			break;
 		case 16:
-			if (this->getTile(x - 8) != 0)
+			if (this->getTile(x - 8) != 0 && last_visited_tile != y)
 			{
 				can_move = true;
 			}
@@ -128,10 +133,11 @@ bool Board::move(int x, int y)
 		}
 		if (can_move)
 		{
+			move_multiple = false;
 			int temp[8] = { 1,2,-1,-2,8,16,-8,-16 };
 			for (int i = 1; i < 8; i+=2)
 			{
-				if (x == y + temp[i - 1]) continue;
+				if (last_visited_tile == y + temp[i - 1]) continue;
 				move_multiple = (move_multiple || checkNextHoop(y + temp[i - 1], y + temp[i]));
 			}
 		}
@@ -140,13 +146,27 @@ bool Board::move(int x, int y)
 	{
 		tiles[y / 8][y % 8] = tiles[x / 8][x % 8];
 		tiles[x / 8][x % 8] = 0;
-		last_visited_tile = x;
-		if (move_multiple) selected_tile = y;
-		else selected_tile = -1;
+		if (move_multiple)
+		{
+			last_visited_tile = x;
+			selected_tile = y;
+		}
+		else
+		{
+			last_visited_tile = -1;
+			selected_tile = -1;
+		}
 	}
-	else
+	else if (move_multiple) //nieudany ruch
 	{
 		can_move = false;
+		std::cout << "C" << '\n';
+	}
+	else // nieudany pojedynczy ruch bez przeskokow
+	{
+		can_move = false;
+		selected_tile = -1;
+		std::cout << "A" << '\n';
 	}
 	return can_move;
 }
@@ -154,4 +174,11 @@ bool Board::move(int x, int y)
 bool Board::canMoveMultiple()
 {
 	return move_multiple;
+}
+
+void Board::endTurn()
+{
+	move_multiple = false;
+	selected_tile = -1;
+	last_visited_tile = -1;
 }

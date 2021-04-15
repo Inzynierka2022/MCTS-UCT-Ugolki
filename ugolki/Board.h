@@ -39,5 +39,7 @@ public:
 
 	//znajdowanie wszystkich ruchów
 	std::vector<Move> findAllMoves(int);
+
+	void makeRandomMove(int);
 };
 

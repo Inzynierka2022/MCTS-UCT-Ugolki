@@ -1,4 +1,6 @@
 #include "Board.h"
+#include <stdlib.h>
+#include <time.h> 
 
 Board::Board()
 {
@@ -159,7 +161,7 @@ bool Board::move(int x, int y)
 		can_move = false;
 		selected_tile = -1;
 	}
-	findPossibleMoves(y);
+	findAllMoves(1);
 	return can_move;
 }
 
@@ -177,7 +179,7 @@ void Board::endTurn()
 
 std::vector<Move> Board::findPossibleMoves(int pawn)
 {
-	//std::cout << "findPossibleMoves" << std::endl;
+	std::cout << "findPossibleMoves" << std::endl;
 	std::vector<Move> moves, temp_moves;
 	temp_moves = findSimpleMoves(pawn);
 
@@ -197,15 +199,15 @@ std::vector<Move> Board::findPossibleMoves(int pawn)
 		}
 	}
 
-	for (int i = 0; i < moves.size(); i++)
+	/*for (int i = 0; i < moves.size(); i++)
 	{
 		for (int j = 0; j < moves[i].steps.size(); j++)
 		{
 			std::cout << moves[i].steps[j] << ", ";
 		}
 		std::cout << "\n";
-	}
-	std::cout << "Possible moves: " << moves.size() << "\n";
+	}*/
+	//std::cout << "Possible moves: " << moves.size() << "\n";
 	return moves;
 }
 
@@ -240,6 +242,7 @@ std::vector<Move> Board::findMultipleJumps(Move m)
 	int temp[] = { -2, 2, -16, 16 };
 	for (int i = 0; i < 4; i++)
 	{
+		if (x / 8 != (x + temp[i]) / 8 && x % 8 != (x + temp[i]) % 8) continue;
 		Move newMove = m;
 		if (canJump(x, x + temp[i]) && !m.wasAlreadyVisited(x + temp[i]))
 		{
@@ -255,6 +258,28 @@ std::vector<Move> Board::findMultipleJumps(Move m)
 
 std::vector<Move> Board::findAllMoves(int pawn_type)
 {
-	return std::vector<Move>();
+	std::vector<Move> moves, temp_moves;
+	for (int i = 0; i < this->width * this->height; i++)
+	{
+		temp_moves.clear();
+		if (getTile(i) == pawn_type) temp_moves = findPossibleMoves(i);
+		if (temp_moves.size() > 0) moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
+	}
+	//std::cout << "All possible moves: " << moves.size() << std::endl;
+	return moves;
+}
+
+void Board::makeRandomMove(int player)
+{
+	std::cout << "makeRandomMove\n";
+	srand(time(NULL));
+	std::vector<Move> moves = findAllMoves(player);
+	uint8_t random = rand() % moves.size();
+	for (int i = 0; i < moves.at((size_t)random).steps.size()- 1; i++)
+	{
+
+		move(moves.at((size_t)random).steps[i], moves.at((size_t)random).steps[i + 1]);
+	}
+	endTurn();
 }
 

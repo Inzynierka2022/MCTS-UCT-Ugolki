@@ -1,22 +1,24 @@
 ﻿  Board.cpp
-C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(35,77): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(37,77): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(35,47): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(37,47): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(49,77): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(51,77): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(49,47): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(51,47): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(275,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(277,40): warning C4267: 'initializing': conversion from 'size_t' to 'uint8_t', possible loss of data
   ugolki.vcxproj -> C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\x64\Debug\ugolki.exe

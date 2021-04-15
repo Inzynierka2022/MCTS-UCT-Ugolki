@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Board.h"
 #include <iostream>
+#include <windows.h>
 
 int select_tile(sf::Vector2i v)
 {
@@ -24,7 +25,7 @@ int main()
     std::vector<int>move_queue;
     bool mouse_pressed = false;
     bool keyboard_pressed = false;
-
+    int player = 1;
 
     while (window.isOpen())
     {
@@ -126,6 +127,10 @@ int main()
         window.clear();
         board.draw(window);
         window.display();
+        Sleep(1000);
+        board.makeRandomMove(player);
+        if (player == 1)player = 2;
+        else player = 1;
     }
     return 0;
 }

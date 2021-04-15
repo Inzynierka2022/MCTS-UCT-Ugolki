@@ -13,62 +13,50 @@ Board::Board()
 void Board::reset()
 {
 	tiles.resize(0);
-	for (int i = 0; i < this->height; i++)
+	for (int i = 0; i < this->height * this->width; i++)
 	{
-		std::vector<int>temp;
-		for (int j = 0; j < this->width; j++)
+		if (i < 28 && i % 8 < 4)
+			tiles.push_back(1);
+		else if (i > 35 && i % 8 > 3)
 		{
-			if (i / 4 == 0 && j / 4 == 0)
-			{
-				temp.push_back(1);
-			}
-			else if (i / 4 == 1 && j / 4 == 1)
-			{
-				temp.push_back(2);
-			}
-			else
-			{
-				temp.push_back(0);
-			}
+			tiles.push_back(2);
 		}
-		this->tiles.push_back(temp);
+		else
+		{
+			tiles.push_back(0);
+		}
 	}
-	selected_tile = -1;
 }
 
 void Board::draw(sf::RenderWindow& w)
 {
-	for (int i = 0; i < this->height; i++)
+	for (int i = 0; i < this->height * this->width; i++)
 	{
-		for (int j = 0; j < this->width; j++)
+		tile.setPosition(sf::Vector2f(BOARD_START_X + (i % 8 * 80), BOARD_START_Y + (i / 8 * 80)));
+
+		if (selected_tile == i)
 		{
-			tile.setPosition(sf::Vector2f(BOARD_START_X + (j * 80), BOARD_START_Y + (i * 80)));
-
-
-			if (selected_tile == (i * 8) + j)
-			{
-				tile.setTextureRect(sf::IntRect(4 * 80, 0, 80, 80));
-			}
-			else
-			{
-				tile.setTextureRect(sf::IntRect(((i + j) % 2) * 80, 0, 80, 80));
-			}
-			w.draw(tile);
-			if (tiles[i][j] != 0)
-			{
-				paw.setTextureRect(sf::IntRect((1 + tiles[i][j]) * 80, 0, 80, 80));
-				paw.setPosition(sf::Vector2f(BOARD_START_X + (j * 80), BOARD_START_Y + (i * 80)));
-				w.draw(paw);
-			}
-
+			tile.setTextureRect(sf::IntRect(4 * 80, 0, 80, 80));
 		}
+		else
+		{
+			tile.setTextureRect(sf::IntRect(((i + (i / 8)) % 2) * 80, 0, 80, 80));
+		}
+		w.draw(tile);
+		if (tiles[i] != 0)
+		{
+			paw.setTextureRect(sf::IntRect((1 + tiles[i]) * 80, 0, 80, 80));
+			paw.setPosition(sf::Vector2f(BOARD_START_X + (i % 8 * 80), BOARD_START_Y + (i / 8 * 80)));
+			w.draw(paw);
+		}
+
 	}
 }
 
 int Board::getTile(int x)
 {
 	if (x < 0 || x > 63) return -1;
-	return tiles[x / 8][x % 8];
+	return tiles[x];
 }
 
 void Board::selectTile(int x)
@@ -149,8 +137,8 @@ bool Board::move(int x, int y)
 	}
 	if (can_move && y != last_visited_tile)
 	{
-		tiles[y / 8][y % 8] = tiles[x / 8][x % 8];
-		tiles[x / 8][x % 8] = 0;
+		tiles[y] = tiles[x];
+		tiles[x] = 0;
 		if (move_multiple)
 		{
 			last_visited_tile = x;

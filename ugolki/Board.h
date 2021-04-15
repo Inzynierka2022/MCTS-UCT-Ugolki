@@ -13,7 +13,7 @@ class Board
 private:
 	const int height = 8;
 	const int width = 8;
-	std::vector<std::vector<int>> tiles;
+	std::vector<int> tiles;
 	sf::Texture textures;
 	sf::Sprite tile; //0 black tile, 1 white tile
 	sf::Sprite paw; //2 paw1, 3 paw2

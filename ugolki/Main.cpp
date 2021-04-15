@@ -25,6 +25,7 @@ int main()
     bool mouse_pressed = false;
     bool keyboard_pressed = false;
 
+
     while (window.isOpen())
     {
         sf::Event event;

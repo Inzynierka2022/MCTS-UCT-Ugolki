@@ -36,7 +36,7 @@ void Board::reset()
 	selected_tile = -1;
 }
 
-void Board::draw(sf::RenderWindow &w)
+void Board::draw(sf::RenderWindow& w)
 {
 	for (int i = 0; i < this->height; i++)
 	{
@@ -44,8 +44,8 @@ void Board::draw(sf::RenderWindow &w)
 		{
 			tile.setPosition(sf::Vector2f(BOARD_START_X + (j * 80), BOARD_START_Y + (i * 80)));
 
-			
-			if (selected_tile == (i*8)+j)
+
+			if (selected_tile == (i * 8) + j)
 			{
 				tile.setTextureRect(sf::IntRect(4 * 80, 0, 80, 80));
 			}
@@ -67,6 +67,7 @@ void Board::draw(sf::RenderWindow &w)
 
 int Board::getTile(int x)
 {
+	if (x < 0 || x > 63) return -1;
 	return tiles[x / 8][x % 8];
 }
 
@@ -105,7 +106,7 @@ bool Board::move(int x, int y)
 	}
 	else //sprawdz czy przeskakuje
 	{
-		
+
 		switch (distance)
 		{
 		case -2:
@@ -139,7 +140,7 @@ bool Board::move(int x, int y)
 		{
 			move_multiple = false;
 			int temp[8] = { 1,2,-1,-2,8,16,-8,-16 };
-			for (int i = 1; i < 8; i+=2)
+			for (int i = 1; i < 8; i += 2)
 			{
 				if (last_visited_tile == y + temp[i - 1]) continue;
 				move_multiple = (move_multiple || checkNextHoop(y + temp[i - 1], y + temp[i]));
@@ -170,6 +171,7 @@ bool Board::move(int x, int y)
 		can_move = false;
 		selected_tile = -1;
 	}
+	findPossibleMoves(y);
 	return can_move;
 }
 
@@ -184,3 +186,87 @@ void Board::endTurn()
 	selected_tile = -1;
 	last_visited_tile = -1;
 }
+
+std::vector<Move> Board::findPossibleMoves(int pawn)
+{
+	//std::cout << "findPossibleMoves" << std::endl;
+	std::vector<Move> moves, temp_moves;
+	temp_moves = findSimpleMoves(pawn);
+
+	if (temp_moves.size() > 0)
+		moves = temp_moves;
+
+	int temp[] = { -2, 2, -16, 16 };
+	for (int i = 0; i < 4; i++)
+	{
+		if (pawn / 8 != (pawn + temp[i]) / 8 && pawn % 8 != (pawn + temp[i]) % 8) continue;
+		if (canJump(pawn, pawn + temp[i]))
+		{
+			moves.push_back(Move(pawn, pawn + temp[i]));
+			temp_moves = findMultipleJumps(moves[moves.size() - 1]);
+			if (temp_moves.size() > 0)
+				moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
+		}
+	}
+
+	for (int i = 0; i < moves.size(); i++)
+	{
+		for (int j = 0; j < moves[i].steps.size(); j++)
+		{
+			std::cout << moves[i].steps[j] << ", ";
+		}
+		std::cout << "\n";
+	}
+	std::cout << "Possible moves: " << moves.size() << "\n";
+	return moves;
+}
+
+std::vector<Move> Board::findSimpleMoves(int x)
+{
+	//std::cout << "findSimpleMoves" << std::endl;
+	std::vector<Move> moves;
+	int temp[] = { -1,1,-8,8 };
+	for (int i = 0; i < 4; i++)
+	{
+		if (x / 8 != (x + temp[i]) / 8 && x % 8 != (x + temp[i]) % 8) continue;
+		if (getTile(x + temp[i]) == 0) moves.push_back(Move(x, x + temp[i]));
+
+	}
+	return moves;
+}
+
+bool Board::canJump(int x, int y)
+{
+	//::cout << "canJump(" << x << ", " << y << ")";
+	int distance = y - x;
+	//std::cout << (getTile(y) == 0 && getTile(x + (distance / 2)) != 0) << std::endl;
+	return (getTile(y) == 0 && getTile(x + (distance / 2)) != 0);
+}
+
+std::vector<Move> Board::findMultipleJumps(Move m)
+{
+	//std::cout << "findMultipleJumps" << std::endl;
+	std::vector<Move> moves, temp_moves;
+	int x = m.steps.back();
+
+	int temp[] = { -2, 2, -16, 16 };
+	for (int i = 0; i < 4; i++)
+	{
+		Move newMove = m;
+		if (canJump(x, x + temp[i]) && !m.wasAlreadyVisited(x + temp[i]))
+		{
+			newMove.steps.push_back(x + temp[i]);
+			moves.push_back(newMove);
+			temp_moves = findMultipleJumps(newMove);
+			moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
+		}
+	}
+	//std::cout << moves.size() << std::endl;
+	return moves;
+}
+
+std::vector<Move> Board::findAllMoves(int pawn_type)
+{
+	return std::vector<Move>();
+}
+

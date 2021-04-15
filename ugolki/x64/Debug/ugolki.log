@@ -1,22 +1,25 @@
 ﻿  Board.cpp
-C:\Users\Kacper\Documents\GitHub\MCTS-UCT-Ugolki\ugolki\Board.cpp(45,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(45,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\Kacper\Documents\GitHub\MCTS-UCT-Ugolki\ugolki\Board.cpp(45,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(45,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\Kacper\Documents\GitHub\MCTS-UCT-Ugolki\ugolki\Board.cpp(60,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(60,74): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-C:\Users\Kacper\Documents\GitHub\MCTS-UCT-Ugolki\ugolki\Board.cpp(60,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
+C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Board.cpp(60,48): warning C4244: 'argument': conversion from 'int' to 'T', possible loss of data
           with
           [
               T=float
           ]
-  ugolki.vcxproj -> C:\Users\Kacper\Documents\GitHub\MCTS-UCT-Ugolki\x64\Debug\ugolki.exe
+  Main.cpp
+  Move.cpp
+  Generating Code...
+  ugolki.vcxproj -> C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\x64\Debug\ugolki.exe

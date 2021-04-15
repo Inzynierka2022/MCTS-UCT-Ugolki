@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "Move.h"
 
 constexpr auto BOARD_START_X = 120;
 constexpr auto BOARD_START_Y = 120;
@@ -29,5 +30,14 @@ public:
 	bool move(int, int);
 	bool canMoveMultiple();
 	void endTurn();
+
+	//znajdowanie ruchów dla jednego pionka
+	std::vector<Move> findPossibleMoves(int);
+	std::vector<Move> findSimpleMoves(int);
+	bool canJump(int, int);
+	std::vector<Move> findMultipleJumps(Move);
+
+	//znajdowanie wszystkich ruchów
+	std::vector<Move> findAllMoves(int);
 };
 

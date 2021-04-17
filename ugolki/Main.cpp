@@ -27,8 +27,7 @@ int main()
     bool mouse_pressed = false;
     bool keyboard_pressed = false;
     int player = 1;
-    int result = 0;
-    long int moves = 0;
+    int player1_wins = 0, player2_wins = 0;
 
     Simulation sim(board.getTiles());
 
@@ -139,7 +138,11 @@ int main()
 
         if (sim.checkIfGameEnded() != 0)
         {
-            std::cout << sim.checkIfGameEnded() << " wygral";
+            std::cout << sim.checkIfGameEnded() << " wygral\n";
+            if (player == 1) player1_wins++;
+            else player2_wins++;
+            std::cout << "Player1: " << player1_wins<<"\n";
+            std::cout << "Player2: " << player2_wins<<"\n";
             sim.reset();
         }
         if (player == 1)player = 2;

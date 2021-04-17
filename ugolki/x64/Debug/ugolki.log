@@ -1,3 +1,2 @@
-﻿  Simulation.cpp
-C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\ugolki\Simulation.cpp(125,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+﻿  Main.cpp
   ugolki.vcxproj -> C:\Users\patryk\source\repos\Inzynierka2022\MCTS-UCT-Ugolki\x64\Debug\ugolki.exe

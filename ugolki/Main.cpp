@@ -26,6 +26,8 @@ int main()
     bool mouse_pressed = false;
     bool keyboard_pressed = false;
     int player = 1;
+    int result = 0;
+    long int moves = 0;
 
     while (window.isOpen())
     {
@@ -122,13 +124,21 @@ int main()
         else
         {
             mouse_pressed = false;
-        }
+        } 
+        
+        //wykonywanie losowych ruchów
+        board.makeRandomMove(player);
 
         window.clear();
         board.draw(window);
         window.display();
-        Sleep(1000);
-        board.makeRandomMove(player);
+
+        if (board.checkIfGameEnded() != 0)
+        {
+            std::cout << board.checkIfGameEnded() << " wygral";
+            system("pause");
+            break;
+        }
         if (player == 1)player = 2;
         else player = 1;
     }

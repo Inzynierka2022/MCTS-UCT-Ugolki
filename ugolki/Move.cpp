@@ -1,6 +1,10 @@
 #include "Move.h"
 #include <iostream>
 
+Move::Move()
+{
+}
+
 Move::Move(int x, int y)
 {
     steps.push_back(x); 

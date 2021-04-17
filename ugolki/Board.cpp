@@ -1,4 +1,4 @@
-#include "Board.h"
+﻿#include "Board.h"
 #include <stdlib.h>
 #include <time.h> 
 
@@ -14,14 +14,20 @@ Board::Board()
 
 void Board::reset()
 {
+	player1_pawns.resize(0);
+	player2_pawns.resize(0);
 	tiles.resize(0);
 	for (int i = 0; i < this->height * this->width; i++)
 	{
 		if (i < 28 && i % 8 < 4)
+		{
 			tiles.push_back(1);
+			player1_pawns.push_back(i);
+		}
 		else if (i > 35 && i % 8 > 3)
 		{
 			tiles.push_back(2);
+			player2_pawns.push_back(i);
 		}
 		else
 		{
@@ -137,6 +143,21 @@ bool Board::move(int x, int y)
 			}
 		}
 	}
+
+	for (int i = 0; i < 16; i++)
+	{
+		if (player1_pawns[i] == x)
+		{
+			player1_pawns[i] = y;
+			break;
+		}
+		if (player2_pawns[i] == x)
+		{
+			player1_pawns[i] = y;
+			break;
+		}
+	}
+
 	if (can_move && y != last_visited_tile)
 	{
 		tiles[y] = tiles[x];
@@ -161,7 +182,6 @@ bool Board::move(int x, int y)
 		can_move = false;
 		selected_tile = -1;
 	}
-	findAllMoves(1);
 	return can_move;
 }
 
@@ -177,9 +197,10 @@ void Board::endTurn()
 	last_visited_tile = -1;
 }
 
+#pragma region finding_all_moves
 std::vector<Move> Board::findPossibleMoves(int pawn)
 {
-	std::cout << "findPossibleMoves" << std::endl;
+	//std::cout << "findPossibleMoves" << std::endl;
 	std::vector<Move> moves, temp_moves;
 	temp_moves = findSimpleMoves(pawn);
 
@@ -256,6 +277,7 @@ std::vector<Move> Board::findMultipleJumps(Move m)
 	return moves;
 }
 
+//trzeba jakoś uprościć wyszukiwanie ruchów
 std::vector<Move> Board::findAllMoves(int pawn_type)
 {
 	std::vector<Move> moves, temp_moves;
@@ -265,21 +287,164 @@ std::vector<Move> Board::findAllMoves(int pawn_type)
 		if (getTile(i) == pawn_type) temp_moves = findPossibleMoves(i);
 		if (temp_moves.size() > 0) moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
 	}
-	//std::cout << "All possible moves: " << moves.size() << std::endl;
+
+	/*for (int i = 0; i < moves.size(); i++)
+	{
+		for (int j = 0; j < moves[i].steps.size(); j++)
+		{
+			std::cout << moves[i].steps[j] << ", ";
+		}
+		std::cout << "\n";
+	}
+	std::cout << "All possible moves: " << moves.size() << std::endl;*/
 	return moves;
 }
+#pragma endregion
 
 void Board::makeRandomMove(int player)
 {
-	std::cout << "makeRandomMove\n";
 	srand(time(NULL));
 	std::vector<Move> moves = findAllMoves(player);
-	uint8_t random = rand() % moves.size();
-	for (int i = 0; i < moves.at((size_t)random).steps.size()- 1; i++)
+	int random_move;
+	Move chosen;
+	bool make_move = false;
+
+	//ta pętla to syf
+	//jak robi losowe ruchy to gra się nie kończy
+	//jak robi dobre ruchy to pionki utykają na swoim polu startowym
+
+	//pomysł 1:
+	//robić ruchy do przodu (nadal wyszukując ruchy do tyłu)
+	//zezwalać na ruchy do tyłu w obrębie pola przeciwnika)
+
+	//pomysł 4:
+	//nowa funkcja wyszukująca tylko ruchy do przodu
+	//jak się skończą to:
+	//pionki w polu przeciwnika cofają w X% przypadków
+	//pionki poza polem przeciwnika idą tylko do przodu
+
+	//POMYSŁ 5(wydaje się szybszy):
+	//zamiast szukać wszystkich możliwych ruchów
+	//wylosować jeden pionek i wykonać losowy ruch
+	//jeśli nie ma możliwego ruchu losujemy kolejny pionek
+	//powinno być szybsze niż wyszukiwanie wszystkich ruchów za każdym razem
+	//PROBLEM: może nie być dobrego ruchu dla wylosowanego pionka - sprawdzanie tego może być mało wydajne
+
+	//wtedy wyszukiwanie wszystkich ruchów było by wykorzystywane do budowania drzewa
+	//symulacja wykorzystywałaby tylko jeden pionek na raz
+
+
+
+	do
+	{
+		//losowanie ruchu
+		random_move = rand() % moves.size();
+		chosen = moves.at((size_t)random_move);
+
+		//decyzja czy wykonać wylosowany ruch
+		if (player == 1)
+		{
+			make_move = verifyMoveForPlayer1(chosen);
+		}
+		else
+		{
+			make_move = verifyMoveForPlayer2(chosen);
+		}
+	} while (make_move == false);
+
+	for (int i = 0; i < chosen.steps.size() - 1; i++)
 	{
 
-		move(moves.at((size_t)random).steps[i], moves.at((size_t)random).steps[i + 1]);
+		move(chosen.steps[i], chosen.steps[i + 1]);
 	}
 	endTurn();
+}
+
+bool Board::verifyMoveForPlayer1(Move m)
+{
+	int start_i, start_j, end_i, end_j;
+	start_i = m.steps[0] / 8;
+	start_j = m.steps[0] % 8;
+	end_i = m.steps.back() / 8;
+	end_j = m.steps.back() % 8;
+	bool result = false;
+
+	//do przodu
+	if ((end_j - start_j) + (end_i - start_i) > 0)
+	{
+		result = true;
+	}
+	else
+	{
+		//jeśli cofa pozostając w polu przeciwnika
+		if (end_i > 3 && end_j % 8 > 3) result = true;
+	}
+
+	return result;
+}
+
+bool Board::verifyMoveForPlayer2(Move m)
+{
+	int start_i, start_j, end_i, end_j;
+	start_i = m.steps[0] / 8;
+	start_j = m.steps[0] % 8;
+	end_i = m.steps.back() / 8;
+	end_j = m.steps.back() % 8;
+	bool result = false;
+	//do przodu
+	if ((end_j - start_j) + (end_i - start_i) < 0)
+	{
+		result = true;
+	}
+	else
+	{
+		//jeśli cofa pozostając w polu przeciwnika
+		if (end_i < 4 && end_j % 8 < 4) result = true;
+	}
+	return result;
+}
+
+//Przydatne warunki:
+	//Player 1:
+		//ruch do przodu
+		//if ((end_j - start_j) + (end_i - start_i) > 0)
+
+		//pionek jest już w polu przeciwnika
+		//if (start_i > 3 && start_j % 8 > 3)
+
+		//pionek nie jest jeszcze w polu przeciwnika
+		//if (start_i <= 3 || start_j % 8 <= 3)
+
+		//pionek kończy ruch w polu przeciwnika
+		//if (end_i > 3 && end_j % 8 > 3)
+
+	//Player 2:
+		//ruch do przodu
+		//if ((end_j - start_j) + (end_i - start_i) < 0)
+
+		//pionek jest już w polu przeciwnika
+		//if (start_i < 4 && start_j % 8 < 4)
+
+		//pionek nie jest jeszcze w polu przeciwnika
+		//if (start_i >= 4 || start_j % 8 >= 4)
+
+		//pionek kończy ruch w polu przeciwnika
+		//if (end_i < 4 && end_j % 8 < 4)
+
+int Board::checkIfGameEnded()
+{
+	bool player1_win = true, player2_win = true;
+	for (int i = 0; i < this->height * this->width; i++)
+	{
+		if (i < 28 && i % 8 < 4)
+		{
+			if (tiles[i] != 2) player2_win = false;
+		}
+		else if (i > 35 && i % 8 > 3)
+		{
+			if (tiles[i] != 1) player1_win = false;
+		}
+	}
+	return (2 * player2_win) + (1 * player1_win);
 }
 

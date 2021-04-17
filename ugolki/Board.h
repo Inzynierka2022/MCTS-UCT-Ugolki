@@ -20,6 +20,8 @@ private:
 	int selected_tile;	//wybrane pole/pionek
 	int last_visited_tile = -1; //poprzednia pozycja
 	bool move_multiple = false; //czy mo¿e wykonaæ kolejny rych w tej samej turze
+	std::vector<int> player1_pawns;
+	std::vector<int> player2_pawns;
 public:
 	Board();
 	void reset();
@@ -41,5 +43,8 @@ public:
 	std::vector<Move> findAllMoves(int);
 
 	void makeRandomMove(int);
+	bool verifyMoveForPlayer1(Move);
+	bool verifyMoveForPlayer2(Move);
+	int checkIfGameEnded();
 };
 

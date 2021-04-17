@@ -1,6 +1,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Board.h"
+#include "Simulation.h"
 #include <iostream>
 #include <windows.h>
 
@@ -28,6 +29,8 @@ int main()
     int player = 1;
     int result = 0;
     long int moves = 0;
+
+    Simulation sim(board.getTiles());
 
     while (window.isOpen())
     {
@@ -127,17 +130,17 @@ int main()
         } 
         
         //wykonywanie losowych ruchów
-        board.makeRandomMove(player);
+        sim.makeRandomMove(player);
 
         window.clear();
-        board.draw(window);
+        //board.draw(window);
+        board.drawSimulation(window, sim.getTiles());
         window.display();
 
-        if (board.checkIfGameEnded() != 0)
+        if (sim.checkIfGameEnded() != 0)
         {
-            std::cout << board.checkIfGameEnded() << " wygral";
-            system("pause");
-            break;
+            std::cout << sim.checkIfGameEnded() << " wygral";
+            sim.reset();
         }
         if (player == 1)player = 2;
         else player = 1;

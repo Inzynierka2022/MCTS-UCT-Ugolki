@@ -20,31 +20,20 @@ private:
 	int selected_tile;	//wybrane pole/pionek
 	int last_visited_tile = -1; //poprzednia pozycja
 	bool move_multiple = false; //czy mo¿e wykonaæ kolejny rych w tej samej turze
-	std::vector<int> player1_pawns;
-	std::vector<int> player2_pawns;
 public:
 	Board();
 	void reset();
 	void draw(sf::RenderWindow& w);
+	//potrzebne do testowania symulacji
+	void drawSimulation(sf::RenderWindow& w, std::vector<int>);
 	int getTile(int);
 	void selectTile(int);
 	bool checkNextHoop(int, int);
 	bool move(int, int);
 	bool canMoveMultiple();
 	void endTurn();
+	std::vector<int> getTiles();
 
-	//znajdowanie ruchów dla jednego pionka
-	std::vector<Move> findPossibleMoves(int);
-	std::vector<Move> findSimpleMoves(int);
-	bool canJump(int, int);
-	std::vector<Move> findMultipleJumps(Move);
-
-	//znajdowanie wszystkich ruchów
-	std::vector<Move> findAllMoves(int);
-
-	void makeRandomMove(int);
-	bool verifyMoveForPlayer1(Move);
-	bool verifyMoveForPlayer2(Move);
-	int checkIfGameEnded();
+	
 };
 

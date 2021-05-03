@@ -11,7 +11,12 @@ private:
 	int player2_pawns_in_own_base;
 	int player1_pawns_in_opponents_base;
 	int player2_pawns_in_opponents_base;
+	int pawns_in_base1;
+	int pawns_in_base2;
+	std::pair<int, int> lastMovePlayer1;
+	std::pair<int, int> lastMovePlayer2;
 public:
+	Simulation();
 	Simulation(std::vector<int>);
 	int getTile(int);
 	void move(int, int);
@@ -33,7 +38,7 @@ public:
 	bool isInOpponentsBaseP2(int);
 
 	int checkIfGameEnded();
-	void updatePawns(Move, int player);
+	void updatePawns(std::pair<int,int>, int player);
 	std::vector<int> getTiles();
 	void reset();
 };

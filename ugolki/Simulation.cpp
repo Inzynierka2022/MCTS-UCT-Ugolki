@@ -7,7 +7,7 @@ Simulation::Simulation(std::vector<int> tiles)
 	this->player2_pawns_in_own_base = 0;
 	this->player1_pawns_in_opponents_base = 0;
 	this->player2_pawns_in_opponents_base = 0;
-	for (int i=0;i<64;i++)
+	for (int i = 0; i < 64; i++)
 	{
 		if (tiles[i] == 1)
 		{
@@ -20,6 +20,8 @@ Simulation::Simulation(std::vector<int> tiles)
 			player2_pawns_in_opponents_base += 1 * isInOpponentsBaseP2(i);
 		}
 	}
+	pawns_in_base1 = player1_pawns_in_own_base + player2_pawns_in_opponents_base;
+	pawns_in_base2 = player2_pawns_in_own_base + player1_pawns_in_opponents_base;
 }
 
 int Simulation::getTile(int x)
@@ -30,18 +32,15 @@ int Simulation::getTile(int x)
 
 void Simulation::move(int x, int y)
 {
+	//śledzenie ilości pionków na polach końcowych	
+	updatePawns(std::pair<int, int>(x, y), getTile(x));
 	int temp = tiles[x];
 	tiles[x] = 0;
 	tiles[y] = temp;
-	/*std::cout << "Player 1 pawns in opponents base: " << player1_pawns_in_opponents_base << std::endl;
-	std::cout << "Player 1 pawns in own base: " << player1_pawns_in_own_base << std::endl;
-	std::cout << "Player 2 pawns in opponents base: " << player2_pawns_in_opponents_base << std::endl;
-	std::cout << "Player 2 pawns in own base: " << player2_pawns_in_own_base << std::endl;*/
 }
 
 std::vector<Move> Simulation::findPossibleMoves(int pawn)
 {
-	//std::cout << "findPossibleMoves" << std::endl;
 	std::vector<Move> moves, temp_moves;
 	temp_moves = findSimpleMoves(pawn);
 
@@ -71,6 +70,10 @@ std::vector<Move> Simulation::findPossibleMoves(int pawn)
 	}*/
 	//std::cout << "Possible moves: " << moves.size() << "\n";
 	return moves;
+}
+
+Simulation::Simulation()
+{
 }
 
 std::vector<Move> Simulation::findSimpleMoves(int x)
@@ -143,41 +146,10 @@ std::vector<Move> Simulation::findAllMoves(int pawn_type)
 
 void Simulation::makeRandomMove(int player)
 {
-	srand(time(NULL));
 	std::vector<Move> moves = findAllMoves(player);
 	int random_move;
 	Move chosen;
 	bool make_move = false;
-
-	//ta pętla to syf
-	//jak robi losowe ruchy to gra się nie kończy
-	//jak robi dobre ruchy to pionki utykają na swoim polu startowym
-
-	//pomysł 1 (AKTUALNY):
-	//robić ruchy do przodu (nadal wyszukując ruchy do tyłu)
-	//zezwalać na ruchy do tyłu w obrębie pola przeciwnika)
-
-	//pomysł 4:
-	//nowa funkcja wyszukująca tylko ruchy do przodu
-	//jak się skończą to:
-	//pionki w polu przeciwnika cofają w X% przypadków
-	//pionki poza polem przeciwnika idą tylko do przodu
-
-	//Można śledzić ilość pionków w polu przeciwnika i jeśli jest ich już 13-14, skupiać się na ruchach pozostałymi.
-	//Dodatkowo jeśli pionek przeciwnika utknie w swoim polu można zacząć robić losowe ruchy dopóki z niego nie wyjdzie
-
-	//POMYSŁ 5(wydaje się szybszy):
-	//zamiast szukać wszystkich możliwych ruchów
-	//wylosować jeden pionek i wykonać losowy ruch
-	//jeśli nie ma możliwego ruchu losujemy kolejny pionek
-	//powinno być szybsze niż wyszukiwanie wszystkich ruchów za każdym razem
-	//PROBLEM: może nie być dobrego ruchu dla wylosowanego pionka - sprawdzanie tego może być mało wydajne
-
-	//wtedy wyszukiwanie wszystkich ruchów było by wykorzystywane do budowania drzewa
-	//symulacja wykorzystywałaby tylko jeden pionek na raz
-
-
-
 	do
 	{
 		//losowanie ruchu
@@ -198,20 +170,21 @@ void Simulation::makeRandomMove(int player)
 	move(chosen.steps[0], chosen.steps.back());
 
 
-	//śledzenie ilości pionków na polach końcowych	
-	updatePawns(chosen, player);
-
+	if (player == 1)
+		lastMovePlayer1 = std::pair<int, int>(chosen.steps[0], chosen.steps.back());
+	if (player == 2)
+		lastMovePlayer2 = std::pair<int, int>(chosen.steps[0], chosen.steps.back());
 }
 
-void Simulation::updatePawns(Move m, int player)
+void Simulation::updatePawns(std::pair<int, int> m, int player)
 {
 	bool x_isInOpponentsBase, y_isInOpponentsBase, x_isInOwnBase, y_isInOwnBase;
 	if (player == 1)
 	{
-		x_isInOpponentsBase = isInOpponentsBaseP1(m.steps[0]);
-		y_isInOpponentsBase = isInOpponentsBaseP1(m.steps.back());
-		x_isInOwnBase = isInOpponentsBaseP2(m.steps[0]);
-		y_isInOwnBase = isInOpponentsBaseP2(m.steps.back());
+		x_isInOpponentsBase = isInOpponentsBaseP1(m.first);
+		y_isInOpponentsBase = isInOpponentsBaseP1(m.second);
+		x_isInOwnBase = isInOpponentsBaseP2(m.first);
+		y_isInOwnBase = isInOpponentsBaseP2(m.second);
 		//jeśli wychodzi z pola przeciwnika
 		if (x_isInOpponentsBase && !y_isInOpponentsBase)
 			player1_pawns_in_opponents_base--;
@@ -227,10 +200,10 @@ void Simulation::updatePawns(Move m, int player)
 	}
 	else
 	{
-		x_isInOpponentsBase = isInOpponentsBaseP2(m.steps[0]);
-		y_isInOpponentsBase = isInOpponentsBaseP2(m.steps.back());
-		x_isInOwnBase = isInOpponentsBaseP1(m.steps[0]);
-		y_isInOwnBase = isInOpponentsBaseP1(m.steps.back());
+		x_isInOpponentsBase = isInOpponentsBaseP2(m.first);
+		y_isInOpponentsBase = isInOpponentsBaseP2(m.second);
+		x_isInOwnBase = isInOpponentsBaseP1(m.first);
+		y_isInOwnBase = isInOpponentsBaseP1(m.second);
 		//jeśli wychodzi z pola przeciwnika
 		if (x_isInOpponentsBase && !y_isInOpponentsBase)
 			player2_pawns_in_opponents_base--;
@@ -244,11 +217,20 @@ void Simulation::updatePawns(Move m, int player)
 		if (!x_isInOwnBase && y_isInOwnBase)
 			player2_pawns_in_own_base++;
 	}
+	pawns_in_base1 = player1_pawns_in_own_base + player2_pawns_in_opponents_base;
+	pawns_in_base2 = player2_pawns_in_own_base + player1_pawns_in_opponents_base;
+	/*std::cout << "Player1 pawns in own base: " << player1_pawns_in_own_base << "\n";
+	std::cout << "Player2 pawns in opponents base: " << player2_pawns_in_opponents_base << "\n";
+	std::cout << "Player2 pawns in own base: " << player2_pawns_in_own_base << "\n";
+	std::cout << "Player1 pawns in opponents base: " << player1_pawns_in_opponents_base << "\n\n";*/
 }
 
 
 bool Simulation::verifyMoveForPlayer1(Move m)
 {
+	//jeśli cofa poprzedni ruch
+	if (lastMovePlayer1.first == m.steps.back() && lastMovePlayer1.second == m.steps[0])
+		return false;
 	//do przodu
 	if (isForwardP1(m.steps[0], m.steps.back()))
 	{
@@ -257,9 +239,9 @@ bool Simulation::verifyMoveForPlayer1(Move m)
 	else
 	{
 		//jeśli cofa pozostając w polu przeciwnika
-		if(isInOpponentsBaseP1(m.steps.back())) return true;
+		if (isInOpponentsBaseP1(m.steps.back())) return true;
 		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if(isInOpponentsBaseP1(m.steps[0]) && player2_pawns_in_own_base != 0 && player2_pawns_in_own_base <= 3) return true;
+		else if (isInOpponentsBaseP1(m.steps[0]) && (player2_pawns_in_own_base != 0 && player2_pawns_in_own_base <= 4 && pawns_in_base2 > 14 || pawns_in_base2 == 16)) return true;
 	}
 	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
 	//if (player1_pawns_in_opponents_base > 13 && !isInOpponentsBaseP1(m.steps[0])) return true;
@@ -268,6 +250,9 @@ bool Simulation::verifyMoveForPlayer1(Move m)
 
 bool Simulation::verifyMoveForPlayer2(Move m)
 {
+	//jeśli cofa poprzedni ruch
+	if (lastMovePlayer2.first == m.steps.back() && lastMovePlayer2.second == m.steps[0])
+		return false;
 	//do przodu
 	if (isForwardP2(m.steps[0], m.steps.back()))
 	{
@@ -278,7 +263,7 @@ bool Simulation::verifyMoveForPlayer2(Move m)
 		//jeśli cofa pozostając w polu przeciwnika
 		if (isInOpponentsBaseP2(m.steps.back())) return true;
 		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if (isInOpponentsBaseP2(m.steps[0]) && player1_pawns_in_own_base != 0 && player1_pawns_in_own_base <= 3) return true;
+		else if (isInOpponentsBaseP2(m.steps[0]) && (player1_pawns_in_own_base != 0 && player1_pawns_in_own_base <= 4 && pawns_in_base1 > 14 || pawns_in_base1 == 16)) return true;
 	}
 	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
 	//if (player2_pawns_in_opponents_base > 13 && !isInOpponentsBaseP2(m.steps[0])) return true;
@@ -347,4 +332,6 @@ void Simulation::reset()
 			player2_pawns_in_opponents_base += 1 * isInOpponentsBaseP2(i);
 		}
 	}
+	this->pawns_in_base1 = player1_pawns_in_own_base + player2_pawns_in_opponents_base;
+	this->pawns_in_base2 = player2_pawns_in_own_base + player1_pawns_in_opponents_base;
 }

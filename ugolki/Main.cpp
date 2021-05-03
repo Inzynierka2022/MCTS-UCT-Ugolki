@@ -2,8 +2,8 @@
 #include <SFML/Graphics.hpp>
 #include "Board.h"
 #include "Simulation.h"
-#include <iostream>
 #include <windows.h>
+#include "MCTS.h"
 
 int select_tile(sf::Vector2i v)
 {
@@ -16,6 +16,7 @@ int select_tile(sf::Vector2i v)
 
 int main()
 {
+    srand(time(NULL));
     sf::RenderWindow window(sf::VideoMode(800, 800), "program",sf::Style::Titlebar);
 
     Board board;
@@ -28,6 +29,11 @@ int main()
     bool keyboard_pressed = false;
     int player = 1;
     int player1_wins = 0, player2_wins = 0;
+    int moves = 0;
+    int games = 0;
+    int avgMoves = 0;
+    MCTS mcts(board.getTiles(), 1);
+    mcts.run(window);
 
     Simulation sim(board.getTiles());
 
@@ -127,23 +133,30 @@ int main()
         {
             mouse_pressed = false;
         } 
-        
+        //Sleep(200);
         //wykonywanie losowych ruchów
-        sim.makeRandomMove(player);
+        //sim.makeRandomMove(player);
+        moves++;
+
 
         window.clear();
-        //board.draw(window);
-        board.drawSimulation(window, sim.getTiles());
+        board.draw(window);
+        //board.drawSimulation(window, sim.getTiles());
         window.display();
 
         if (sim.checkIfGameEnded() != 0)
         {
             std::cout << sim.checkIfGameEnded() << " wygral\n";
+            sim.reset();
             if (player == 1) player1_wins++;
             else player2_wins++;
+            avgMoves = (games * avgMoves + moves)/(games+1);
+            games++;
             std::cout << "Player1: " << player1_wins<<"\n";
             std::cout << "Player2: " << player2_wins<<"\n";
-            sim.reset();
+            std::cout << "Moves: " << moves << "\n";
+            std::cout << "Avg moves: " << avgMoves << "\n";
+            moves = 0;
         }
         if (player == 1)player = 2;
         else player = 1;

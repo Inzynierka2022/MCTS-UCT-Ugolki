@@ -17,7 +17,10 @@ MCTS::MCTS(std::vector<int> board, int player)
 //inicjuje wszystkie węzły dzieci dla danego ruchu
 void MCTS::appendAllChildren(std::shared_ptr<TreeNode> move)
 {
-	std::vector<Move> moves = sim.findAllMoves(nextPlayer);
+	int p;
+	if (move->depth % 2 == 0) p = player;
+	else p = player == 1 ? 2 : 1;
+	std::vector<Move> moves = sim.findAllMoves(p);
 	std::shared_ptr<TreeNode> temp;
 	for (int i = 0; i < moves.size(); i++)
 	{
@@ -35,12 +38,9 @@ std::shared_ptr<TreeNode> MCTS::chooseMoveToSimulate()
 	double uct;
 	std::shared_ptr<TreeNode> temp = root;
 	bool lookingForHighest = true;
-	nextPlayer = player;
 	//wybieranie ruchów w drzewie dopóki nie dojdziemy do takiego, dla którego nie było żadnej symulacji
 	do
 	{
-		if (nextPlayer == 1) nextPlayer = 2;
-		else nextPlayer = 1;
 		moves = temp->GetChildren();
 		for (int i = 0; i < moves.size(); i++)
 		{
@@ -58,7 +58,7 @@ std::shared_ptr<TreeNode> MCTS::chooseMoveToSimulate()
 				index = i;
 			}
 		}
-		temp = moves[index]; 
+		temp = moves[index];
 		lookingForHighest = !lookingForHighest;
 		highestUCT = 0;
 	} while (temp->hasChildren());
@@ -73,9 +73,9 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 	auto startTime = std::chrono::high_resolution_clock::now();
 	int maxdepth = 0;
 	while (std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::high_resolution_clock::now() - startTime)).count() < 5000)
-	//while(true)
+		//while(true)
 	{
-		auto move = chooseMoveToSimulate();		
+		auto move = chooseMoveToSimulate();
 
 		turn = player;
 		makeAllMovesFromBranch(move);
@@ -89,8 +89,8 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 	root->showInfo();
 	auto moves = root->GetChildren();
 	int mostSimulations = 0;
-	int index;
-	for (int i = 0; i < moves.size();i++) {
+	int index=0;
+	for (int i = 0; i < moves.size(); i++) {
 		moves[i]->showInfo();
 		if (mostSimulations < moves[i]->getSimulations())
 		{
@@ -98,12 +98,12 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 			mostSimulations = moves[i]->getSimulations();
 		}
 	}
-	printf("Max depth: %d",maxdepth);
+	printf("Max depth: %d", maxdepth);
 	return moves[index]->move;
 }
 
 //zwraca true jeśli wygrana
-bool MCTS::simulate()	
+bool MCTS::simulate()
 {
 	while (!sim.checkIfGameEnded())
 	{

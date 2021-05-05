@@ -33,6 +33,7 @@ public:
 	bool canMoveMultiple();
 	void endTurn();
 	std::vector<int> getTiles();
+	int checkIfGameEnded();
 
 	
 };

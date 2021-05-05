@@ -241,7 +241,7 @@ bool Simulation::verifyMoveForPlayer1(Move m)
 		//jeśli cofa pozostając w polu przeciwnika
 		if (isInOpponentsBaseP1(m.steps.back())) return true;
 		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if (isInOpponentsBaseP1(m.steps[0]) && (player2_pawns_in_own_base != 0 && player2_pawns_in_own_base <= 4 && pawns_in_base2 > 14 || pawns_in_base2 == 16)) return true;
+		else if (isInOpponentsBaseP1(m.steps[0]) && (player2_pawns_in_own_base != 0 && player2_pawns_in_own_base <= 4 && pawns_in_base2 > 13 || pawns_in_base2 == 16)) return true;
 	}
 	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
 	//if (player1_pawns_in_opponents_base > 13 && !isInOpponentsBaseP1(m.steps[0])) return true;
@@ -263,7 +263,7 @@ bool Simulation::verifyMoveForPlayer2(Move m)
 		//jeśli cofa pozostając w polu przeciwnika
 		if (isInOpponentsBaseP2(m.steps.back())) return true;
 		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if (isInOpponentsBaseP2(m.steps[0]) && (player1_pawns_in_own_base != 0 && player1_pawns_in_own_base <= 4 && pawns_in_base1 > 14 || pawns_in_base1 == 16)) return true;
+		else if (isInOpponentsBaseP2(m.steps[0]) && (player1_pawns_in_own_base != 0 && player1_pawns_in_own_base <= 4 && pawns_in_base1 > 13 || pawns_in_base1 == 16)) return true;
 	}
 	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
 	//if (player2_pawns_in_opponents_base > 13 && !isInOpponentsBaseP2(m.steps[0])) return true;

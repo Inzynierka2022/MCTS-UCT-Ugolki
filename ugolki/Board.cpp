@@ -202,3 +202,19 @@ std::vector<int> Board::getTiles()
 	return tiles;
 }
 
+int Board::checkIfGameEnded()
+{
+	bool player1_win = true, player2_win = true;
+	for (int i = 0; i < 64; i++)
+	{
+		if (i < 28 && i % 8 < 4)
+		{
+			if (tiles[i] != 2) player2_win = false;
+		}
+		else if (i > 35 && i % 8 > 3)
+		{
+			if (tiles[i] != 1) player1_win = false;
+		}
+	}
+	return (2 * player2_win) + (1 * player1_win);
+}

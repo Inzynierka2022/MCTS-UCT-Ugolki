@@ -18,7 +18,7 @@ public:
 	TreeNode(std::pair<int, int>, std::shared_ptr<TreeNode> parent);
 	void appendChild(std::shared_ptr<TreeNode> child);
 	std::vector<std::shared_ptr<TreeNode>> GetChildren();
-	void update(bool result);
+	void update(int result, int);
 	double calculateUCT();
 	double calculateUCTOpponent();
 	bool hasChildren();

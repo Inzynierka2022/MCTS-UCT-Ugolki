@@ -12,6 +12,7 @@ Board::Board()
 	paw.setOrigin(40, 40);
 	selected_tile = -1;
 	selected_tile2 = -1;
+	this->reset();
 }
 
 void Board::reset()

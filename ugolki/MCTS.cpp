@@ -11,7 +11,7 @@ MCTS::MCTS(std::vector<int> board, int player)
 	this->player = player;
 	this->nextPlayer = player;
 	this->root = std::make_shared<TreeNode>();
-	this->sim = Simulation(board);
+	this->sim = Simulation(this->board);
 }
 
 //inicjuje wszystkie węzły dzieci dla danego ruchu
@@ -72,18 +72,44 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 	Board board;
 	auto startTime = std::chrono::high_resolution_clock::now();
 	int maxdepth = 0;
-	while (std::chrono::duration_cast<std::chrono::milliseconds>((std::chrono::high_resolution_clock::now() - startTime)).count() < 5000)
-		//while(true)
-	{
-		auto move = chooseMoveToSimulate();
 
-		turn = player;
+	auto t1 = std::chrono::high_resolution_clock::now();
+
+	for (auto start = std::chrono::steady_clock::now(), now = start; now < start + std::chrono::seconds{ 5 }; now = std::chrono::steady_clock::now())
+	{
+		auto t1 = std::chrono::high_resolution_clock::now();
+
+		this->successed_simulations.store(0);
+		std::shared_ptr<TreeNode> move = chooseMoveToSimulate();
+
+		std::shared_ptr<unsigned int> successed_simulations = std::make_shared<unsigned int>(0);
+
+		this->turn = this->player;
 		makeAllMovesFromBranch(move);
 		appendAllChildren(move);
-		move->update(simulate(turnNumber));
-		sim.reset();
+
+		std::vector<std::thread> threads;
+		for (unsigned int i=0;i< __THREAD_NUMBER; i++)
+		{
+			threads.push_back(std::thread(&MCTS::simulate,this, sim, turnNumber));
+		}
+	
+
+		for (unsigned int i = 0; i < __THREAD_NUMBER; i++)
+		{
+			threads[i].join();
+		}
+
+		move->update(this->successed_simulations.load(), __THREAD_NUMBER);
+
 		if (move->depth > maxdepth) maxdepth = move->depth;
 	}
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
+	std::cout << "dupa123 ---" << fp_ms.count() << std::endl;
+
+
 
 	//wyświetlanie informacji i wybór ruchu z największą ilością symulacji
 	root->showInfo();
@@ -103,16 +129,30 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 }
 
 //zwraca true jeśli wygrana
-bool MCTS::simulate(int turnNumber)
+bool MCTS::simulate(const Simulation &sim1, int turnNumber)
 {
-	while (!sim.checkIfGameEnded(turnNumber))
+	Simulation sim2 = sim1;
+
+	while (!sim2.checkIfGameEnded(turnNumber))
 	{
-		sim.makeRandomMove(turn, turnNumber);
+		sim2.makeRandomMove(turn, turnNumber);
 		if (turn == 2) turnNumber++;
 		if (turn == 1) turn = 2;
 		else turn = 1;
 	}
-	return sim.checkIfGameEnded(turnNumber) == player;
+
+	if (sim2.checkIfGameEnded(turnNumber) == player)
+	{
+		std::lock_guard<std::mutex> lock(this->simulations_mutex);
+		this->successed_simulations.store(this->successed_simulations.load()+1);
+	}
+}
+
+void MCTS::reset_tree(std::vector<int> board, int player)
+{
+	this->board = board;
+	this->player = player;
+	this->root = std::make_shared<TreeNode>();
 }
 
 //wykonanie wybranego ruchu i wszystkich poprzedzających

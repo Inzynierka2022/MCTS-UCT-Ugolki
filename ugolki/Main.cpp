@@ -9,20 +9,20 @@
 
 int main()
 {
+/*
+*****INITS*****
+*/
 	srand(time(NULL));
 	sf::RenderWindow window(sf::VideoMode(800, 800), "program", sf::Style::Titlebar);
 	Board board;
-	board.reset();
 	int turnNumber = 0;
 	int winner = 0;
 
 	sf::Mouse mouse;
 	int selected_tile[2] = { -1,-1 };
-	std::vector<int>move_queue;
-	bool mouse_pressed = false;
-	bool keyboard_pressed = false;
 
 	MCTS mcts(board.getTiles(), 2);
+
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -34,15 +34,19 @@ int main()
 		}
 
 		PlayerMove::run(event, window, board, selected_tile);
+
 		window.clear();
 		board.draw(window);
 		window.display();
+
 		std::cout << "Ruch: " << turnNumber << "\n";
-
-
 		std::cout << "\Szukanie najlepszego ruchu\n";
-		mcts = MCTS(board.getTiles(), 2);
-		std::pair<int, int> move = mcts.run(window, turnNumber);
+
+
+		mcts.reset_tree(board.getTiles(), 2);//generate new tree search
+
+		std::pair<int, int> move = mcts.run(window, turnNumber);//bot move
+
 		board.moveAI(move.first, move.second);
 
 		winner = board.checkIfGameEnded(turnNumber);

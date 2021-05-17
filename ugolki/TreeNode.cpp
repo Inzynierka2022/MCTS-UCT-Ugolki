@@ -46,12 +46,12 @@ std::vector<std::shared_ptr<TreeNode>> TreeNode::GetChildren()
 	return children;
 }
 
-void TreeNode::update(bool result)
+void TreeNode::update(int result, int number_of_simulations)
 {
-	this->simulations++;
-	if (result) this->wins++;
+	this->simulations+= number_of_simulations;
+	this->wins += result;
 	if(this->parent != nullptr)
-		this->parent->update(result);
+		this->parent->update(result, number_of_simulations);
 }
 
 

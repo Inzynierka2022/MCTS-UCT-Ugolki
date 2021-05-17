@@ -3,11 +3,12 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <future>
 #include "TreeNode.h"
 #include "Simulation.h"
 #include "Board.h"
 
-constexpr auto __THREAD_NUMBER = 50;
+constexpr auto __THREAD_NUMBER = 10;
 
 
 class MCTS

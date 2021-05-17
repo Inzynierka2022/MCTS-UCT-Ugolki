@@ -77,39 +77,33 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 
 	for (auto start = std::chrono::steady_clock::now(), now = start; now < start + std::chrono::seconds{ 5 }; now = std::chrono::steady_clock::now())
 	{
-		auto t1 = std::chrono::high_resolution_clock::now();
-
 		this->successed_simulations.store(0);
 		std::shared_ptr<TreeNode> move = chooseMoveToSimulate();
-
-		std::shared_ptr<unsigned int> successed_simulations = std::make_shared<unsigned int>(0);
 
 		this->turn = this->player;
 		makeAllMovesFromBranch(move);
 		appendAllChildren(move);
-
+		
+		
 		std::vector<std::thread> threads;
 		for (unsigned int i=0;i< __THREAD_NUMBER; i++)
 		{
 			threads.push_back(std::thread(&MCTS::simulate,this, sim, turnNumber));
 		}
-	
-
+		
 		for (unsigned int i = 0; i < __THREAD_NUMBER; i++)
 		{
 			threads[i].join();
 		}
 
 		move->update(this->successed_simulations.load(), __THREAD_NUMBER);
-
+		
+		
 		if (move->depth > maxdepth) maxdepth = move->depth;
 	}
-
 	auto t2 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> fp_ms = t2 - t1;
-	std::cout << "dupa123 ---" << fp_ms.count() << std::endl;
-
-
+	std::cout << "loop run lasted:  ---" << fp_ms.count() << std::endl;
 
 	//wyświetlanie informacji i wybór ruchu z największą ilością symulacji
 	root->showInfo();

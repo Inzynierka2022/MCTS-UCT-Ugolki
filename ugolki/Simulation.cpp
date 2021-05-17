@@ -159,6 +159,11 @@ void Simulation::makeRandomMove(int player, int turnNumber)
 	do
 	{
 		//losowanie ruchu
+		if (moves.size() == 0)
+		{
+			reset();
+			break;
+		}
 		random_move = rand() % moves.size();
 		chosen = moves.at((size_t)random_move);
 
@@ -172,7 +177,7 @@ void Simulation::makeRandomMove(int player, int turnNumber)
 			make_move = verifyMoveForPlayer2(chosen, turnNumber);
 		}
 		i++;
-		if (i > 1000000)
+		if (i > 10000)
 		{
 			reset();
 			break;

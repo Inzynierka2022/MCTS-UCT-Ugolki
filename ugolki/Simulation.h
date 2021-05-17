@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include "Move.h"
 #include "Board.h"
 class Simulation
 {
@@ -21,24 +20,27 @@ public:
 	int getTile(int);
 	void move(int, int);
 	//znajdowanie ruchów dla jednego pionka
-	std::vector<Move> findPossibleMoves(int);
-	std::vector<Move> findSimpleMoves(int);
+	std::vector<std::pair<int, int>> findPossibleMoves(int);
+	std::vector<std::pair<int, int>> findSimpleMoves(int);
 	bool canJump(int, int);
-	std::vector<Move> findMultipleJumps(Move);
+	bool wasAlreadyVisited(int tile, std::vector<int>&);
+	std::vector<std::pair<int, int>> findMultipleJumps(int x, int y, std::vector<int> visitedTiles);
 
 	//znajdowanie wszystkich ruchów
-	std::vector<Move> findAllMoves(int);
+	std::vector<std::pair<int, int>> findAllMoves(int);
 
-	void makeRandomMove(int);
-	bool verifyMoveForPlayer1(Move);
-	bool verifyMoveForPlayer2(Move);
+	void makeRandomMove(int, int);
+	bool verifyMoveForPlayer1(std::pair<int, int>, int);
+	bool verifyMoveForPlayer2(std::pair<int, int>, int);
 	bool isForwardP1(int, int);
 	bool isForwardP2(int, int);
-	bool isInOpponentsBaseP1(int);
-	bool isInOpponentsBaseP2(int);
+	bool isInBase2(int);
+	bool isInBase1(int);
+	bool isInBase2Border(int x);
+	bool isInBase1Border(int x);
 
-	int checkIfGameEnded();
-	void updatePawns(std::pair<int,int>, int player);
+	int checkIfGameEnded(int turn);
+	void updatePawns(std::pair<int, int>, int player);
 	std::vector<int> getTiles();
 	void reset();
 };

@@ -18,7 +18,7 @@ public:
 	void appendAllChildren(std::shared_ptr<TreeNode> move);
 	std::shared_ptr<TreeNode> chooseMoveToSimulate();
 	void makeAllMovesFromBranch(std::shared_ptr<TreeNode> move);
-	std::pair<int, int> run(sf::RenderWindow& window);
-	bool simulate();
+	std::pair<int, int> run(sf::RenderWindow& window, int turn);
+	bool simulate(int turnNumber);
 };
 

@@ -11,13 +11,13 @@ Simulation::Simulation(std::vector<int> tiles)
 	{
 		if (tiles[i] == 1)
 		{
-			player1_pawns_in_own_base += 1 * isInOpponentsBaseP2(i);
-			player1_pawns_in_opponents_base += 1 * isInOpponentsBaseP1(i);
+			player1_pawns_in_own_base += 1 * isInBase1(i);
+			player1_pawns_in_opponents_base += 1 * isInBase2(i);
 		}
 		else if (tiles[i] == 2)
 		{
-			player2_pawns_in_own_base += 1 * isInOpponentsBaseP1(i);
-			player2_pawns_in_opponents_base += 1 * isInOpponentsBaseP2(i);
+			player2_pawns_in_own_base += 1 * isInBase2(i);
+			player2_pawns_in_opponents_base += 1 * isInBase1(i);
 		}
 	}
 	pawns_in_base1 = player1_pawns_in_own_base + player2_pawns_in_opponents_base;
@@ -39,9 +39,9 @@ void Simulation::move(int x, int y)
 	tiles[y] = temp;
 }
 
-std::vector<Move> Simulation::findPossibleMoves(int pawn)
+std::vector<std::pair<int, int>> Simulation::findPossibleMoves(int pawn)
 {
-	std::vector<Move> moves, temp_moves;
+	std::vector<std::pair<int, int>> moves, temp_moves;
 	temp_moves = findSimpleMoves(pawn);
 
 	if (temp_moves.size() > 0)
@@ -53,8 +53,8 @@ std::vector<Move> Simulation::findPossibleMoves(int pawn)
 		if (pawn / 8 != (pawn + temp[i]) / 8 && pawn % 8 != (pawn + temp[i]) % 8) continue;
 		if (canJump(pawn, pawn + temp[i]))
 		{
-			moves.push_back(Move(pawn, pawn + temp[i]));
-			temp_moves = findMultipleJumps(moves[moves.size() - 1]);
+			moves.push_back(std::pair<int, int>(pawn, pawn + temp[i]));
+			temp_moves = findMultipleJumps(pawn, pawn + temp[i], std::vector<int>({ pawn,pawn + temp[i] }));
 			if (temp_moves.size() > 0)
 				moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
 		}
@@ -76,15 +76,15 @@ Simulation::Simulation()
 {
 }
 
-std::vector<Move> Simulation::findSimpleMoves(int x)
+std::vector<std::pair<int, int>> Simulation::findSimpleMoves(int x)
 {
 	//std::cout << "findSimpleMoves" << std::endl;
-	std::vector<Move> moves;
+	std::vector<std::pair<int, int>> moves;
 	int temp[] = { -1,1,-8,8 };
 	for (int i = 0; i < 4; i++)
 	{
 		if (x / 8 != (x + temp[i]) / 8 && x % 8 != (x + temp[i]) % 8) continue;
-		if (getTile(x + temp[i]) == 0) moves.push_back(Move(x, x + temp[i]));
+		if (getTile(x + temp[i]) == 0) moves.push_back(std::pair<int, int>(x, x + temp[i]));
 
 	}
 	return moves;
@@ -98,23 +98,27 @@ bool Simulation::canJump(int x, int y)
 	return (getTile(y) == 0 && getTile(x + (distance / 2)) != 0);
 }
 
-std::vector<Move> Simulation::findMultipleJumps(Move m)
+bool Simulation::wasAlreadyVisited(int tile, std::vector<int>& steps)
+{
+	return std::find(steps.begin(), steps.end(), tile) != steps.end();
+}
+
+std::vector<std::pair<int, int>> Simulation::findMultipleJumps(int x, int y, std::vector<int> visitedTiles)
 {
 	//std::cout << "findMultipleJumps" << std::endl;
-	std::vector<Move> moves, temp_moves;
-	int x = m.steps.back();
+	std::vector<std::pair<int, int>> moves, temp_moves;
 
 	int temp[] = { -2, 2, -16, 16 };
 	for (int i = 0; i < 4; i++)
 	{
-		if (x / 8 != (x + temp[i]) / 8 && x % 8 != (x + temp[i]) % 8) continue;
-		Move newMove = m;
-		if (canJump(x, x + temp[i]) && !m.wasAlreadyVisited(x + temp[i]))
+		if (y / 8 != (y + temp[i]) / 8 && y % 8 != (y + temp[i]) % 8) continue;
+		if (canJump(y, y + temp[i]) && !wasAlreadyVisited(y + temp[i], visitedTiles))
 		{
-			newMove.steps.push_back(x + temp[i]);
-			moves.push_back(newMove);
-			temp_moves = findMultipleJumps(newMove);
+			visitedTiles.push_back(y + temp[i]);
+			moves.push_back(std::pair<int, int>(x, y + temp[i]));
+			temp_moves = findMultipleJumps(x, y + temp[i], visitedTiles);
 			moves.insert(moves.end(), temp_moves.begin(), temp_moves.end());
+			visitedTiles.pop_back();
 		}
 	}
 	//std::cout << moves.size() << std::endl;
@@ -122,9 +126,9 @@ std::vector<Move> Simulation::findMultipleJumps(Move m)
 }
 
 //trzeba jakoś uprościć wyszukiwanie ruchów
-std::vector<Move> Simulation::findAllMoves(int pawn_type)
+std::vector<std::pair<int, int>> Simulation::findAllMoves(int pawn_type)
 {
-	std::vector<Move> moves, temp_moves;
+	std::vector<std::pair<int, int>> moves, temp_moves;
 	for (int i = 0; i < 64; i++)
 	{
 		temp_moves.clear();
@@ -144,12 +148,14 @@ std::vector<Move> Simulation::findAllMoves(int pawn_type)
 	return moves;
 }
 
-void Simulation::makeRandomMove(int player)
+
+void Simulation::makeRandomMove(int player, int turnNumber)
 {
-	std::vector<Move> moves = findAllMoves(player);
+	std::vector<std::pair<int, int>> moves = findAllMoves(player);
 	int random_move;
-	Move chosen;
+	std::pair<int, int> chosen;
 	bool make_move = false;
+	int i = 0;
 	do
 	{
 		//losowanie ruchu
@@ -159,21 +165,103 @@ void Simulation::makeRandomMove(int player)
 		//decyzja czy wykonać wylosowany ruch
 		if (player == 1)
 		{
-			make_move = verifyMoveForPlayer1(chosen);
+			make_move = verifyMoveForPlayer1(chosen, turnNumber);
 		}
 		else
 		{
-			make_move = verifyMoveForPlayer2(chosen);
+			make_move = verifyMoveForPlayer2(chosen, turnNumber);
+		}
+		i++;
+		if (i > 1000000)
+		{
+			reset();
+			break;
 		}
 	} while (make_move == false);
 
-	move(chosen.steps[0], chosen.steps.back());
+	move(chosen.first, chosen.second);
 
 
 	if (player == 1)
-		lastMovePlayer1 = std::pair<int, int>(chosen.steps[0], chosen.steps.back());
+		lastMovePlayer1 = std::pair<int, int>(chosen.first, chosen.second);
 	if (player == 2)
-		lastMovePlayer2 = std::pair<int, int>(chosen.steps[0], chosen.steps.back());
+		lastMovePlayer2 = std::pair<int, int>(chosen.first, chosen.second);
+}
+
+
+bool Simulation::verifyMoveForPlayer1(std::pair<int, int> m, int turnNumber)
+{
+	if (player1_pawns_in_own_base != 0 && !isInBase1(m.first) && rand() % 100 > 5) return false;
+	//do przodu
+	if (isForwardP1(m.first, m.second))
+	{
+		//jeśli cofa poprzedni ruch
+		if (lastMovePlayer1.first == m.second && lastMovePlayer1.second == m.first)
+			return false;
+		if (turnNumber <= 40 && !isInBase1(m.first) && rand() % 100 > 98) return false;
+		if ((abs(m.first - m.second) == 1 || abs(m.first - m.second) == 8) && turnNumber <= 40 && rand() % 100 > 98) return false;
+		return true;
+	}
+	else
+	{
+		if (turnNumber <= 40 && isInBase1Border(m.first) && isInBase1Border(m.second)) return true;
+		if (turnNumber > 40 && isInBase2Border(m.first) && isInBase2Border(m.second)) return true;
+	}
+	return false;
+}
+
+bool Simulation::verifyMoveForPlayer2(std::pair<int, int> m, int turnNumber)
+{
+	if (player2_pawns_in_own_base != 0 && !isInBase2(m.first) && rand() % 100 > 5) return false;
+	//jeśli cofa poprzedni ruch
+	if (lastMovePlayer2.first == m.second && lastMovePlayer2.second == m.first)
+		return false;
+	//do przodu
+	if (isForwardP2(m.first, m.second))
+	{
+		//jeśli cofa poprzedni ruch
+		if (lastMovePlayer2.first == m.second && lastMovePlayer2.second == m.first)
+			return false;
+		if (turnNumber <= 40 && !isInBase2(m.first) && rand() % 100 > 98) return false;
+		if ((abs(m.first - m.second) == 1 || abs(m.first - m.second) == 8) && turnNumber <= 40 && rand() % 100 > 98) return false;
+		return true;
+	}
+	else
+	{
+		if (turnNumber <= 40 && isInBase2Border(m.first) && isInBase2Border(m.second)) return true;
+		if (turnNumber > 40 && isInBase1Border(m.first) && isInBase1Border(m.second)) return true;
+	}
+	return false;
+}
+
+bool Simulation::isForwardP1(int x, int y)
+{
+	return (y % 8 - x % 8) + (y / 8 - x / 8) > 0;
+}
+
+bool Simulation::isForwardP2(int x, int y)
+{
+	return (y % 8 - x % 8) + (y / 8 - x / 8) < 0;
+}
+
+bool Simulation::isInBase2(int x)
+{
+	return x > 35 && x % 8 > 3;
+}
+
+bool Simulation::isInBase1(int x)
+{
+	return x < 28 && x % 8 < 4;
+}
+
+bool Simulation::isInBase2Border(int x)
+{
+	return (x > 35 && x<40) || (x >35 && x%8==4);
+}
+
+bool Simulation::isInBase1Border(int x)
+{
+	return (x > 23 && x < 28) || (x < 28 && x % 8 == 3);
 }
 
 void Simulation::updatePawns(std::pair<int, int> m, int player)
@@ -181,10 +269,10 @@ void Simulation::updatePawns(std::pair<int, int> m, int player)
 	bool x_isInOpponentsBase, y_isInOpponentsBase, x_isInOwnBase, y_isInOwnBase;
 	if (player == 1)
 	{
-		x_isInOpponentsBase = isInOpponentsBaseP1(m.first);
-		y_isInOpponentsBase = isInOpponentsBaseP1(m.second);
-		x_isInOwnBase = isInOpponentsBaseP2(m.first);
-		y_isInOwnBase = isInOpponentsBaseP2(m.second);
+		x_isInOpponentsBase = isInBase2(m.first);
+		y_isInOpponentsBase = isInBase2(m.second);
+		x_isInOwnBase = isInBase1(m.first);
+		y_isInOwnBase = isInBase1(m.second);
 		//jeśli wychodzi z pola przeciwnika
 		if (x_isInOpponentsBase && !y_isInOpponentsBase)
 			player1_pawns_in_opponents_base--;
@@ -200,10 +288,10 @@ void Simulation::updatePawns(std::pair<int, int> m, int player)
 	}
 	else
 	{
-		x_isInOpponentsBase = isInOpponentsBaseP2(m.first);
-		y_isInOpponentsBase = isInOpponentsBaseP2(m.second);
-		x_isInOwnBase = isInOpponentsBaseP1(m.first);
-		y_isInOwnBase = isInOpponentsBaseP1(m.second);
+		x_isInOpponentsBase = isInBase1(m.first);
+		y_isInOpponentsBase = isInBase1(m.second);
+		x_isInOwnBase = isInBase2(m.first);
+		y_isInOwnBase = isInBase2(m.second);
 		//jeśli wychodzi z pola przeciwnika
 		if (x_isInOpponentsBase && !y_isInOpponentsBase)
 			player2_pawns_in_opponents_base--;
@@ -226,71 +314,7 @@ void Simulation::updatePawns(std::pair<int, int> m, int player)
 }
 
 
-bool Simulation::verifyMoveForPlayer1(Move m)
-{
-	//jeśli cofa poprzedni ruch
-	if (lastMovePlayer1.first == m.steps.back() && lastMovePlayer1.second == m.steps[0])
-		return false;
-	//do przodu
-	if (isForwardP1(m.steps[0], m.steps.back()))
-	{
-		return true;
-	}
-	else
-	{
-		//jeśli cofa pozostając w polu przeciwnika
-		if (isInOpponentsBaseP1(m.steps.back())) return true;
-		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if (isInOpponentsBaseP1(m.steps[0]) && (player2_pawns_in_own_base != 0 && player2_pawns_in_own_base <= 4 && pawns_in_base2 > 13 || pawns_in_base2 == 16)) return true;
-	}
-	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
-	//if (player1_pawns_in_opponents_base > 13 && !isInOpponentsBaseP1(m.steps[0])) return true;
-	return false;
-}
-
-bool Simulation::verifyMoveForPlayer2(Move m)
-{
-	//jeśli cofa poprzedni ruch
-	if (lastMovePlayer2.first == m.steps.back() && lastMovePlayer2.second == m.steps[0])
-		return false;
-	//do przodu
-	if (isForwardP2(m.steps[0], m.steps.back()))
-	{
-		return true;
-	}
-	else
-	{
-		//jeśli cofa pozostając w polu przeciwnika
-		if (isInOpponentsBaseP2(m.steps.back())) return true;
-		//jeśli ruch wychodzący z bazy przeciwnika, a przeciwnik ma pionki w bazie (zapobieganie blokowaniu)
-		else if (isInOpponentsBaseP2(m.steps[0]) && (player1_pawns_in_own_base != 0 && player1_pawns_in_own_base <= 4 && pawns_in_base1 > 13 || pawns_in_base1 == 16)) return true;
-	}
-	//można dodać jakies warunki jak tylko np. 2 pionki zostały do końca
-	//if (player2_pawns_in_opponents_base > 13 && !isInOpponentsBaseP2(m.steps[0])) return true;
-	return false;
-}
-
-bool Simulation::isForwardP1(int x, int y)
-{
-	return (y % 8 - x % 8) + (y / 8 - x / 8) > 0;
-}
-
-bool Simulation::isForwardP2(int x, int y)
-{
-	return (y % 8 - x % 8) + (y / 8 - x / 8) < 0;
-}
-
-bool Simulation::isInOpponentsBaseP1(int x)
-{
-	return x > 35 && x % 8 > 3;
-}
-
-bool Simulation::isInOpponentsBaseP2(int x)
-{
-	return x < 28 && x % 8 < 4;
-}
-
-int Simulation::checkIfGameEnded()
+int Simulation::checkIfGameEnded(int turn)
 {
 	bool player1_win = true, player2_win = true;
 	for (int i = 0; i < 64; i++)
@@ -303,6 +327,11 @@ int Simulation::checkIfGameEnded()
 		{
 			if (tiles[i] != 1) player1_win = false;
 		}
+	}
+	if (turn >= 40)
+	{
+		if (player1_pawns_in_own_base > 0)	player2_win = true;
+		if (player2_pawns_in_own_base > 0) player1_win = true;
 	}
 	return (2 * player2_win) + (1 * player1_win);
 }
@@ -323,13 +352,13 @@ void Simulation::reset()
 	{
 		if (tiles[i] == 1)
 		{
-			player1_pawns_in_own_base += 1 * isInOpponentsBaseP2(i);
-			player1_pawns_in_opponents_base += 1 * isInOpponentsBaseP1(i);
+			player1_pawns_in_own_base += 1 * isInBase1(i);
+			player1_pawns_in_opponents_base += 1 * isInBase2(i);
 		}
 		else if (tiles[i] == 2)
 		{
-			player2_pawns_in_own_base += 1 * isInOpponentsBaseP1(i);
-			player2_pawns_in_opponents_base += 1 * isInOpponentsBaseP2(i);
+			player2_pawns_in_own_base += 1 * isInBase2(i);
+			player2_pawns_in_opponents_base += 1 * isInBase1(i);
 		}
 	}
 	this->pawns_in_base1 = player1_pawns_in_own_base + player2_pawns_in_opponents_base;

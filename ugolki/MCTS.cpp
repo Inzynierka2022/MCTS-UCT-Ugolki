@@ -20,11 +20,11 @@ void MCTS::appendAllChildren(std::shared_ptr<TreeNode> move)
 	int p;
 	if (move->depth % 2 == 0) p = player;
 	else p = player == 1 ? 2 : 1;
-	std::vector<Move> moves = sim.findAllMoves(p);
+	std::vector<std::pair<int, int>> moves = sim.findAllMoves(p);
 	std::shared_ptr<TreeNode> temp;
 	for (int i = 0; i < moves.size(); i++)
 	{
-		temp = std::make_shared<TreeNode>(TreeNode(std::pair<int, int>(moves[i].steps[0], moves[i].steps.back()), move));
+		temp = std::make_shared<TreeNode>(TreeNode(std::pair<int, int>(moves[i].first, moves[i].second), move));
 		move->appendChild(temp);
 	}
 }
@@ -66,7 +66,7 @@ std::shared_ptr<TreeNode> MCTS::chooseMoveToSimulate()
 }
 
 //zwraca najlepszy ruch
-std::pair<int, int> MCTS::run(sf::RenderWindow& window)
+std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 {
 	appendAllChildren(root);
 	Board board;
@@ -80,7 +80,7 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 		turn = player;
 		makeAllMovesFromBranch(move);
 		appendAllChildren(move);
-		move->update(simulate());
+		move->update(simulate(turnNumber));
 		sim.reset();
 		if (move->depth > maxdepth) maxdepth = move->depth;
 	}
@@ -89,7 +89,7 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 	root->showInfo();
 	auto moves = root->GetChildren();
 	int mostSimulations = 0;
-	int index=0;
+	int index = 0;
 	for (int i = 0; i < moves.size(); i++) {
 		moves[i]->showInfo();
 		if (mostSimulations < moves[i]->getSimulations())
@@ -103,15 +103,16 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window)
 }
 
 //zwraca true jeśli wygrana
-bool MCTS::simulate()
+bool MCTS::simulate(int turnNumber)
 {
-	while (!sim.checkIfGameEnded())
+	while (!sim.checkIfGameEnded(turnNumber))
 	{
-		sim.makeRandomMove(turn);
+		sim.makeRandomMove(turn, turnNumber);
+		if (turn == 2) turnNumber++;
 		if (turn == 1) turn = 2;
 		else turn = 1;
 	}
-	return sim.checkIfGameEnded() == player;
+	return sim.checkIfGameEnded(turnNumber) == player;
 }
 
 //wykonanie wybranego ruchu i wszystkich poprzedzających

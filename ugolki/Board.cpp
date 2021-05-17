@@ -1,6 +1,7 @@
 ﻿#include "Board.h"
 #include <stdlib.h>
 #include <time.h> 
+#include "Simulation.h"
 
 Board::Board()
 {
@@ -10,6 +11,7 @@ Board::Board()
 	paw.setTexture(textures);
 	paw.setOrigin(40, 40);
 	selected_tile = -1;
+	selected_tile2 = -1;
 }
 
 void Board::reset()
@@ -38,7 +40,7 @@ void Board::draw(sf::RenderWindow& w)
 	{
 		tile.setPosition(sf::Vector2f(BOARD_START_X + (i % 8 * 80), BOARD_START_Y + (i / 8 * 80)));
 
-		if (selected_tile == i)
+		if (selected_tile == i || selected_tile2 == i)
 		{
 			tile.setTextureRect(sf::IntRect(4 * 80, 0, 80, 80));
 		}
@@ -81,9 +83,12 @@ int Board::getTile(int x)
 	return tiles[x];
 }
 
-void Board::selectTile(int x)
+void Board::selectTile(int x, int type)
 {
-	selected_tile = x;
+	if (type == 1)
+		selected_tile = x;
+	else
+		selected_tile2 = x;
 }
 
 bool Board::checkNextHoop(int x, int y) //x pionek do przeskoczenia, y miejsce za pionkiem
@@ -98,7 +103,7 @@ bool Board::checkNextHoop(int x, int y) //x pionek do przeskoczenia, y miejsce z
 	else return false;
 }
 
-bool Board::move(int x, int y)
+bool Board::movePlayer(int x, int y)
 {
 	bool can_move = false;
 	int distance = x - y;
@@ -185,6 +190,14 @@ bool Board::move(int x, int y)
 	return can_move;
 }
 
+void Board::moveAI(int x, int y)
+{
+	selected_tile = y;
+	selected_tile2 = x;
+	tiles[y] = tiles[x];
+	tiles[x] = 0;
+}
+
 bool Board::canMoveMultiple()
 {
 	return move_multiple;
@@ -202,19 +215,8 @@ std::vector<int> Board::getTiles()
 	return tiles;
 }
 
-int Board::checkIfGameEnded()
+int Board::checkIfGameEnded(int turnNumber)
 {
-	bool player1_win = true, player2_win = true;
-	for (int i = 0; i < 64; i++)
-	{
-		if (i < 28 && i % 8 < 4)
-		{
-			if (tiles[i] != 2) player2_win = false;
-		}
-		else if (i > 35 && i % 8 > 3)
-		{
-			if (tiles[i] != 1) player1_win = false;
-		}
-	}
-	return (2 * player2_win) + (1 * player1_win);
+	Simulation sim(tiles);
+	return sim.checkIfGameEnded(turnNumber);
 }

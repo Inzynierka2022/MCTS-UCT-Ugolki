@@ -9,6 +9,8 @@
 
 int main()
 {
+	std::cout << "Controls: \n Left click - select and move \n Right click - next round\n"<<std::endl;
+		
 /*
 *****INITS*****
 */

@@ -8,7 +8,8 @@
 #include "Simulation.h"
 #include "Board.h"
 
-constexpr auto __THREAD_NUMBER = 4;
+constexpr auto __THREAD_NUMBER = 8;
+constexpr auto __TIME_FOR_SIMULATION = 1000;
 
 
 class MCTS

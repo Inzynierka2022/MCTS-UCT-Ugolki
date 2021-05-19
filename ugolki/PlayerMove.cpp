@@ -38,9 +38,18 @@ void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, in
             {
                 mouse_pressed = true;
                 board.selectTile(-1, 2);
+
                 if (selected_tile[0] >= 0)
                 {
                     selected_tile[1] = select_tile(mouse.getPosition(window));
+
+                    if (selected_tile[0] == selected_tile[1])
+                    {
+                        selected_tile[0] = -1;
+                        selected_tile[1] = -1;
+                        board.selectTile(-1,1);
+                    }
+
                     if (selected_tile[1] >= 0)
                     {
                         if (board.getTile(selected_tile[1]) != 0)

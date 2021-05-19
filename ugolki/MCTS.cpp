@@ -72,7 +72,7 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 
 	auto t1 = std::chrono::high_resolution_clock::now();
 
-	for (auto start = std::chrono::steady_clock::now(), now = start; now < start + std::chrono::seconds{ 5 }; now = std::chrono::steady_clock::now())
+	for (auto start = std::chrono::steady_clock::now(), now = start; now < start + std::chrono::milliseconds{ __TIME_FOR_SIMULATION }; now = std::chrono::steady_clock::now())
 	{
 		this->successed_simulations.store(0);
 		std::shared_ptr<TreeNode> move = chooseMoveToSimulate();
@@ -88,13 +88,18 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 			threads.push_back(std::thread(&MCTS::simulate,this, sim, turnNumber));
 		}
 		
+		auto t3 = std::chrono::high_resolution_clock::now();
 		for (unsigned int i = 0; i < __THREAD_NUMBER; i++)
 		{
 			threads[i].join();
 		}
+		auto t4 = std::chrono::high_resolution_clock::now();
 
 		move->update(this->successed_simulations.load(), __THREAD_NUMBER);
 		sim.setBoard(board);
+
+		/*std::chrono::duration<double, std::milli> fp_ms2 = t4 - t3;
+		std::cout << "waited for threads:  ---" << fp_ms2.count() << std::endl;*/
 		
 		if (move->depth > maxdepth) maxdepth = move->depth;
 	}

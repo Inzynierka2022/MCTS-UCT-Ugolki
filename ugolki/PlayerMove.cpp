@@ -6,6 +6,7 @@ void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, in
     bool keyboard_pressed = false;
     sf::Mouse mouse;
     int turn = 0;
+    bool moved = false;
     while (true)
     {
         while (window.pollEvent(event))
@@ -58,6 +59,7 @@ void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, in
                         {
                             if (board.movePlayer(selected_tile[0], selected_tile[1]))
                             {
+                                moved = true;
                                 if (board.canMoveMultiple())
                                 {
                                     selected_tile[0] = selected_tile[1];
@@ -99,7 +101,7 @@ void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, in
         }
         else if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
         {
-            if (!mouse_pressed)
+            if (!mouse_pressed && moved)
             {
                 mouse_pressed = true;
                 board.endTurn();

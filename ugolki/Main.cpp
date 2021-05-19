@@ -35,7 +35,7 @@ int main()
 
 		}
 
-		PlayerMove::run(event, window, board, selected_tile);
+		PlayerMove::run(event, window, board, selected_tile, 1);
 
 		window.clear();
 		board.draw(window);
@@ -43,7 +43,6 @@ int main()
 
 		std::cout << "Ruch: " << turnNumber << "\n";
 		std::cout << "\Szukanie najlepszego ruchu\n";
-
 
 		mcts.reset_tree(board.getTiles());//generate new tree search
 

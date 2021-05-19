@@ -1,6 +1,6 @@
 #include "PlayerMove.h"
 
-void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, int* selected_tile)
+void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, int* selected_tile, int player)
 {
     bool mouse_pressed = false;
     bool keyboard_pressed = false;
@@ -88,7 +88,8 @@ void PlayerMove::run(sf::Event& event,sf::RenderWindow& window, Board& board, in
                 }
                 else
                 {
-                    selected_tile[0] = select_tile(mouse.getPosition(window));
+                    if (player == board.getTile(select_tile(mouse.getPosition(window))))
+                        selected_tile[0] = select_tile(mouse.getPosition(window));
                     if (selected_tile[0] >= 0)
                     {
                         if (board.getTile(selected_tile[0]) == 0)

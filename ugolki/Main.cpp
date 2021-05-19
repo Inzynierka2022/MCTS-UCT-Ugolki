@@ -23,8 +23,9 @@ int main()
 	sf::Mouse mouse;
 	int selected_tile[2] = { -1,-1 };
 
-	MCTS mcts(board.getTiles(), 2);
-
+	MCTS mcts(board.getTiles(), 1);
+	MCTS mcts2(board.getTiles(), 2);
+	std::pair<int, int> move;
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -35,7 +36,7 @@ int main()
 
 		}
 
-		PlayerMove::run(event, window, board, selected_tile, 1);
+		//PlayerMove::run(event, window, board, selected_tile, 1);
 
 		window.clear();
 		board.draw(window);
@@ -46,7 +47,17 @@ int main()
 
 		mcts.reset_tree(board.getTiles());//generate new tree search
 
-		std::pair<int, int> move = mcts.run(window, turnNumber);//bot move
+		move = mcts.run(window, turnNumber);//bot move
+
+		board.moveAI(move.first, move.second);
+
+		window.clear();
+		board.draw(window);
+		window.display();
+
+		mcts2.reset_tree(board.getTiles());//generate new tree search
+
+		move = mcts2.run(window, turnNumber);//bot move
 
 		board.moveAI(move.first, move.second);
 

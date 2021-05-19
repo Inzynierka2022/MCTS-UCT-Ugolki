@@ -8,17 +8,15 @@
 #include "Simulation.h"
 #include "Board.h"
 
-constexpr auto __THREAD_NUMBER = 10;
+constexpr auto __THREAD_NUMBER = 4;
 
 
 class MCTS
 {
 private:
 	std::vector<int> board;
-	std::vector<int> initialBoard;
 	std::shared_ptr<TreeNode> root;
 	int player;
-	int nextPlayer;
 	int turn;
 	Simulation sim;
 
@@ -30,7 +28,7 @@ public:
 	std::shared_ptr<TreeNode> chooseMoveToSimulate();
 	void makeAllMovesFromBranch(std::shared_ptr<TreeNode> move);
 	std::pair<int, int> run(sf::RenderWindow& window, int turn);
-	bool simulate(const Simulation &,int turnNumber);
-	void reset_tree(std::vector<int> board, int player);
+	void simulate(const Simulation &,int turnNumber);
+	void reset_tree(std::vector<int> board);
 };
 

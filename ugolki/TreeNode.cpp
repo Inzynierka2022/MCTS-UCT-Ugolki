@@ -37,6 +37,7 @@ void TreeNode::appendChild(std::shared_ptr<TreeNode> child)
 std::vector<std::shared_ptr<TreeNode>> TreeNode::GetChildren()
 {
 	std::vector<std::shared_ptr<TreeNode>> children;
+	if (firstChild == nullptr) return children;
 	std::shared_ptr<TreeNode> temp = firstChild;
 	do
 	{

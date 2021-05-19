@@ -43,7 +43,7 @@ int main()
 		std::cout << "\Szukanie najlepszego ruchu\n";
 
 
-		mcts.reset_tree(board.getTiles(), 2);//generate new tree search
+		mcts.reset_tree(board.getTiles());//generate new tree search
 
 		std::pair<int, int> move = mcts.run(window, turnNumber);//bot move
 

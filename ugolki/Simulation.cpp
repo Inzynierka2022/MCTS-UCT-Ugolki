@@ -338,12 +338,30 @@ int Simulation::checkIfGameEnded(int turn)
 		if (player1_pawns_in_own_base > 0)	player2_win = true;
 		if (player2_pawns_in_own_base > 0) player1_win = true;
 	}
+	/*if ((2 * player2_win) + (1 * player1_win) == 2)
+	{
+		for (int i = 0; i < 64; i++)
+		{
+			if (i % 8 == 0) std::cout << "\n";
+			std::cout << tiles[i];
+		}
+		std::cout << std::endl;
+		std::cout << player1_pawns_in_own_base << std::endl;
+		std::cout << player2_pawns_in_own_base << std::endl;
+	}*/
 	return (2 * player2_win) + (1 * player1_win);
 }
 
 std::vector<int> Simulation::getTiles()
 {
 	return tiles;
+}
+
+
+void Simulation::setBoard(std::vector<int> newBoard)
+{
+	this->initState = newBoard;
+	this->reset();
 }
 
 void Simulation::reset()

@@ -42,6 +42,7 @@ public:
 	int checkIfGameEnded(int turn);
 	void updatePawns(std::pair<int, int>, int player);
 	std::vector<int> getTiles();
+	void setBoard(std::vector<int> newBoard);
 	void reset();
 };
 

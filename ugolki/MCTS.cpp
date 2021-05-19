@@ -7,9 +7,7 @@
 MCTS::MCTS(std::vector<int> board, int player)
 {
 	this->board = board;
-	this->initialBoard = board;
 	this->player = player;
-	this->nextPlayer = player;
 	this->root = std::make_shared<TreeNode>();
 	this->sim = Simulation(this->board);
 }
@@ -69,7 +67,6 @@ std::shared_ptr<TreeNode> MCTS::chooseMoveToSimulate()
 std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 {
 	appendAllChildren(root);
-	Board board;
 	auto startTime = std::chrono::high_resolution_clock::now();
 	int maxdepth = 0;
 
@@ -97,7 +94,7 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 		}
 
 		move->update(this->successed_simulations.load(), __THREAD_NUMBER);
-		
+		sim.setBoard(board);
 		
 		if (move->depth > maxdepth) maxdepth = move->depth;
 	}
@@ -118,12 +115,11 @@ std::pair<int, int> MCTS::run(sf::RenderWindow& window, int turnNumber)
 			mostSimulations = moves[i]->getSimulations();
 		}
 	}
-	printf("Max depth: %d", maxdepth);
+	printf("Max depth: %d\n", maxdepth);
 	return moves[index]->move;
 }
 
-//zwraca true jeśli wygrana
-bool MCTS::simulate(const Simulation &sim1, int turnNumber)
+void MCTS::simulate(const Simulation &sim1, int turnNumber)
 {
 	Simulation sim2 = sim1;
 
@@ -142,10 +138,10 @@ bool MCTS::simulate(const Simulation &sim1, int turnNumber)
 	}
 }
 
-void MCTS::reset_tree(std::vector<int> board, int player)
+void MCTS::reset_tree(std::vector<int> board)
 {
 	this->board = board;
-	this->player = player;
+	this->sim.setBoard(board);
 	this->root = std::make_shared<TreeNode>();
 }
 

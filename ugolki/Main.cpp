@@ -51,9 +51,15 @@ int main()
 		board.moveAI(move.first, move.second);
 
 		winner = board.checkIfGameEnded(turnNumber);
+		
 		if (winner != 0)
 		{
+			if (winner==3)
+			std::cout << "remis\n";
+			else
+			{
 			std::cout << winner << " wygral\n";
+			}
 			printf("Turn:%d\n", turnNumber);
 			board.reset();
 			turnNumber = 0;

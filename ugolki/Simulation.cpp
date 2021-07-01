@@ -125,7 +125,7 @@ std::vector<std::pair<int, int>> Simulation::findMultipleJumps(int x, int y, std
 	return moves;
 }
 
-//trzeba jakoś uprościć wyszukiwanie ruchów
+
 std::vector<std::pair<int, int>> Simulation::findAllMoves(int pawn_type)
 {
 	std::vector<std::pair<int, int>> moves, temp_moves;
